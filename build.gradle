@@ -1,0 +1,38 @@
+apply plugin: 'java'
+
+repositories {
+   mavenCentral()
+   flatDir {
+       dirs 'lib'
+   }
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+dependencies {
+    compile group: 'org.boofcv', name: 'all', version: '0.23'
+    compile group: 'net.sf.trove4j', name: 'trove4j', version: '3.0.3'
+    compile group: 'com.google.guava', name: 'guava', version: '19.0'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.5'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.5'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+        resources {
+            srcDir 'config'
+        }
+    }
+}
+
+jar {
+    manifest {
+             attributes 'Main-Class': 'ch.unibas.cs.dbis.cthulhu.Master'
+    }
+    archiveName = 'cthulhu.jar'
+}
+
+task deploy(dependsOn: [build, jar])
