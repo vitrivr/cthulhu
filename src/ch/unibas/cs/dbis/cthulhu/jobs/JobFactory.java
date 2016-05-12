@@ -9,7 +9,8 @@ class JobFactory {
      * * Bash script "BASH"
      * * Feature extraction "FEATURE_EXTRACTION"
      */
-    public Job buildJob(String description) {
+    public Job buildJob(String description, String type) {
+        return null;
     }
 
     public JobFactory() {
