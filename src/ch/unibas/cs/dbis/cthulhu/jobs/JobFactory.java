@@ -1,6 +1,8 @@
 package ch.unibas.cs.dbis.cthulhu.jobs;
 
-class JobFactory {
+import ch.unibas.cs.dbis.cthulhu.jobs.BashJob;
+
+public class JobFactory {
     /**
      * Builds a job based on a description received in a JSON-formatted string.
      *
@@ -10,7 +12,15 @@ class JobFactory {
      * * Feature extraction "FEATURE_EXTRACTION"
      */
     public Job buildJob(String description, String type) {
-        return null;
+        return buildJob(description,type,2); // Default priority: 2
+    }
+    public Job buildJob(String description, String type, int priority) {
+        switch (type) {
+        case "BashJob":
+            return new BashJob(description,priority);
+        default:
+            throw new IllegalArgumentException("Invalid job type: "+type);
+        }
     }
 
     public JobFactory() {

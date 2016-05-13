@@ -7,7 +7,7 @@ import java.util.Comparator;
  * JobComparator is a simple static class that compares jobs according to their priorities.
  * It can be reimplemented to account for other factors (specially creation date)
  */
-public class JobComparator implements Comparator<Job> {
+class JobComparator implements Comparator<Job> {
     @Override
         public int compare(Job x, Job y) {
         if(x.jobPriority() < y.jobPriority()) return -1;
