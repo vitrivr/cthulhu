@@ -1,4 +1,4 @@
-package ch.unibas.cs.dbis.cthulhu.jobs;
+package org.vitrivr.cthulhu.jobs;
 
 import java.lang.ProcessBuilder;
 import java.lang.Process;

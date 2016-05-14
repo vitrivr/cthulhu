@@ -1,14 +1,10 @@
-package ch.unibas.cs.dbis.cthulhu.jobs;
+package org.vitrivr.cthulhu.jobs;
 
 import org.junit.Test;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import java.util.PriorityQueue;
-
-import ch.unibas.cs.dbis.cthulhu.jobs.Job;
-import ch.unibas.cs.dbis.cthulhu.jobs.BashJob;
-import ch.unibas.cs.dbis.cthulhu.jobs.JobComparator;
 
 public class JobComparatorTest {
     static JobComparator jc;

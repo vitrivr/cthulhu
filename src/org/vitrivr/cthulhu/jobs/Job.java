@@ -1,4 +1,4 @@
-package ch.unibas.cs.dbis.cthulhu.jobs;
+package org.vitrivr.cthulhu.jobs;
 
 /**
    The Job interface. Defines the basic methods for jobs to be manipulated.

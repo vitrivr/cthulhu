@@ -1,9 +1,9 @@
+package org.vitrivr.cthulhu.jobs;
+
 import org.junit.Test;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
-
-import ch.unibas.cs.dbis.cthulhu.jobs.BashJob;
 
 public class BashJobTest {
     @BeforeClass

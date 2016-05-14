@@ -1,6 +1,6 @@
-package ch.unibas.cs.dbis.cthulhu.jobs;
+package org.vitrivr.cthulhu.jobs;
 
-import ch.unibas.cs.dbis.cthulhu.jobs.BashJob;
+import org.vitrivr.cthulhu.jobs.BashJob;
 
 public class JobFactory {
     /**
