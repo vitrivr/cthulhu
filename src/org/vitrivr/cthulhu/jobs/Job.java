@@ -3,7 +3,7 @@ package org.vitrivr.cthulhu.jobs;
 /**
    The Job interface. Defines the basic methods for jobs to be manipulated.
  */
-abstract public class Job {
+abstract public class Job implements Comparable<Job>{
     static final int PROGRAM_FAILURE = 5; // Failure from our program
     static final int JOB_INTERRUPTION = 3; // The job received an interruption while running
     static final int JOB_FAILURE = 1;     // Failure in the job
@@ -30,5 +30,11 @@ abstract public class Job {
      */
     public int jobPriority(){
         return this.priority;
+    }
+
+    public int compareTo(Job o) {
+        if(priority > o.jobPriority()) return 1;
+        if(priority == o.jobPriority()) return 0;
+        return -1;
     }
 }
