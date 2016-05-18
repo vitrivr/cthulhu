@@ -14,6 +14,10 @@ public class JobFactory {
     public Job buildJob(String description, String type) {
         return buildJob(description,type,2); // Default priority: 2
     }
+    public Job buildJob(String description) {
+        String type = description;
+        return buildJob(description,type,2); // Default priority: 2
+    }
     public Job buildJob(String description, String type, int priority) {
         switch (type) {
         case "BashJob":

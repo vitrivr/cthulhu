@@ -8,6 +8,7 @@ abstract public class Job implements Comparable<Job>{
     static final int JOB_INTERRUPTION = 3; // The job received an interruption while running
     static final int JOB_FAILURE = 1;     // Failure in the job
     String type;
+    String name; // Name or ID
     int priority;
     int res;
     /**
@@ -21,20 +22,24 @@ abstract public class Job implements Comparable<Job>{
     /**
      * Returns the type of the job.
      */
-    public String jobType(){
+    public String getType(){
         return this.type;
     }
 
     /**
      * Returns the priority of the job.
      */
-    public int jobPriority(){
+    public int getPriority(){
         return this.priority;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public int compareTo(Job o) {
-        if(priority > o.jobPriority()) return 1;
-        if(priority == o.jobPriority()) return 0;
+        if(priority > o.getPriority()) return 1;
+        if(priority == o.getPriority()) return 0;
         return -1;
     }
 }
