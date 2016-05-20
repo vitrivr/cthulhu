@@ -41,9 +41,3 @@ public class BashJobTest {
         assertEquals("pablo\nwas\nhere\n",bj.getStdOut());
     }
 }
-
-
-
-
-
-

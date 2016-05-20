@@ -16,15 +16,17 @@ public class BashJob extends Job {
     String stdOut;
     String stdErr;
 
+    public BashJob(){
+    }
+
     public BashJob(String command) {
         this.command = command;
-        this.priority = 2; // Default priority
-        this.type = "BASH";
+        this.type = "BashJob";
     }
     public BashJob(String command, int priority) {
         this.command = command;
         this.priority = priority;
-        this.type = "BASH";
+        this.type = "BashJob";
     }
 
     public int execute() {

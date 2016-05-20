@@ -1,6 +1,8 @@
 package org.vitrivr.cthulhu.jobs;
 
 import org.vitrivr.cthulhu.jobs.BashJob;
+import com.google.gson.GsonBuilder;
+import com.google.gson.Gson;
 
 public class JobFactory {
     /**
@@ -11,12 +13,9 @@ public class JobFactory {
      * * Bash script "BASH"
      * * Feature extraction "FEATURE_EXTRACTION"
      */
-    public Job buildJob(String description, String type) {
-        return buildJob(description,type,2); // Default priority: 2
-    }
+    private Gson gson;
     public Job buildJob(String description) {
-        String type = description;
-        return buildJob(description,type,2); // Default priority: 2
+        return gson.fromJson(description,Job.class);
     }
     public Job buildJob(String description, String type, int priority) {
         switch (type) {
@@ -28,5 +27,9 @@ public class JobFactory {
     }
 
     public JobFactory() {
+        Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Job.class, new JobAdapter())
+            .create();
+        this.gson = gson;
     }
 }

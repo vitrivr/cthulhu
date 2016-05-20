@@ -1,5 +1,7 @@
 package org.vitrivr.cthulhu.jobs;
 
+import com.google.gson.Gson;
+
 /**
    The Job interface. Defines the basic methods for jobs to be manipulated.
  */
@@ -7,9 +9,10 @@ abstract public class Job implements Comparable<Job>{
     static final int PROGRAM_FAILURE = 5; // Failure from our program
     static final int JOB_INTERRUPTION = 3; // The job received an interruption while running
     static final int JOB_FAILURE = 1;     // Failure in the job
+
     String type;
-    String name; // Name or ID
-    int priority;
+    String name;
+    int priority = 2; // Default priority is 2
     int res;
     /**
      * Executes the job.
@@ -18,6 +21,12 @@ abstract public class Job implements Comparable<Job>{
      * It returns an int with the status of the job (0:SUCCESS,1:FAILED)
      */
     abstract public int execute();
+
+    /**
+     * Creates a job without arguments
+     */
+    public Job() {
+    }
     
     /**
      * Returns the type of the job.
@@ -32,9 +41,18 @@ abstract public class Job implements Comparable<Job>{
     public int getPriority(){
         return this.priority;
     }
+    public void setPriority(int priority){
+        this.priority = priority;
+    }
 
     public String getName() {
         return name;
+    }
+
+    public String toString() {
+        Gson gson = new Gson();
+        String json = gson.toJson(this);
+        return json;
     }
 
     public int compareTo(Job o) {
