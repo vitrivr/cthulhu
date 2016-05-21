@@ -15,4 +15,5 @@ public class Worker{
         this.port = port;
     }
     public String getAddress() { return address; }
+    public String getId() { return address+":"+Integer.toString(port); }
 }

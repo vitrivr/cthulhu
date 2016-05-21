@@ -12,19 +12,18 @@ import java.io.IOException;
 
 
 public class BashJob extends Job {
-    String command;
     String stdOut;
     String stdErr;
 
-    public BashJob(){
+    protected BashJob(){
     }
 
-    public BashJob(String command) {
-        this.command = command;
+    protected BashJob(String action) {
+        this.action = action;
         this.type = "BashJob";
     }
-    public BashJob(String command, int priority) {
-        this.command = command;
+    protected BashJob(String action, int priority) {
+        this.action = action;
         this.priority = priority;
         this.type = "BashJob";
     }
@@ -35,7 +34,7 @@ public class BashJob extends Job {
         try {
             p = pb.start();
             OutputStream os = p.getOutputStream();
-            os.write(this.command.getBytes(Charset.forName("UTF-8")));
+            os.write(this.action.getBytes(Charset.forName("UTF-8")));
             os.flush();
             os.close();
 

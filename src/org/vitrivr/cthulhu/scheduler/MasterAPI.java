@@ -4,31 +4,39 @@ import static spark.Spark.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.gson.Gson;
+
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import org.vitrivr.cthulhu.jobs.Job;
+import org.vitrivr.cthulhu.worker.Worker;
 
 public class MasterAPI {
     private static MasterScheduler ms;
     private static Logger LOGGER = LogManager.getLogger("r.m");
+    private static Gson gson;
     public static void main(String[] args) {
         LOGGER.info("Starting up");
         ms = new MasterScheduler();
+        gson = new Gson();
         APICLIThread cli = new APICLIThread();
         cli.start();
 
         LOGGER.info("Creating REST paths");
         get("/jobs/:id", (req, res) -> {
-                String result = req.params(":id");
-                if(result.equals("")) res.status(400);
-                return result;
+                String id = req.params(":id");
+                if(id.equals("")) res.status(400);
+                return gson.toJson(ms.getJobs(id));
             });
-        get("/jobs", (req, res) -> {
-                return "";
+        get("/jobs", (req, res) -> gson.toJson(ms.getJobs()) );
+        get("/workers/:id", (req, res) -> {
+                String id = req.params(":id");
+                if(id.equals("")) res.status(400);
+                return gson.toJson(ms.getWorkers(id));
             });
-        get("/workers/:id", (req, res) -> "Worker: "+req.params(":id"));
-        get("/workers", (req, res) -> "Worker 1\nWorker 2\nWorker 3");
+        get("/workers", (req, res) -> gson.toJson(ms.getWorkers()) );
 
         post("/jobs", (req, res) -> {
                 int st = ms.registerJob(req.body());
@@ -43,8 +51,19 @@ public class MasterAPI {
                 return "";
             });
 
-        delete("/jobs/:id", (req, res) -> "Created job 3");
-        delete("/workers/:id", (req, res) -> "Deleted worker 4");
+        delete("/jobs/:id", (req, res) -> {
+                String id = req.params(":id");
+                Job job = ms.deleteJob(id);
+                if(job == null) res.status(400);
+                return "";
+            });
+        delete("/workers/:id", (req, res) -> {
+                String id = req.params(":id");
+                Worker worker = ms.deleteWorker(id);
+                if(worker == null) res.status(400);
+                return "";
+            });
+
         LOGGER.info("Ready!");
     }
 

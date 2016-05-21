@@ -8,19 +8,21 @@ import org.vitrivr.cthulhu.worker.Worker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Hashtable;
+import java.util.stream.*;
 
 public class MasterScheduler {
     private JobQueue jq;
     private JobFactory jf;
-    private ArrayList<Worker> ws; // Worker list
+    private Hashtable<String,Worker> wt; // Worker table
     private Hashtable<String,Job> jt; // Job table
     private Logger lg;
     public MasterScheduler() {
         jq = new JobQueue();
         jf = new JobFactory();
-        ws = new ArrayList<Worker>();
+        wt = new Hashtable<String,Worker>();
+        jt = new Hashtable<String,Job>();
         lg = LogManager.getLogger("r.m.ms"); // master.masterscheduler
     }
     public int registerJob(String jobDefinition) {
@@ -31,18 +33,33 @@ public class MasterScheduler {
         return 0;
     }
     public int registerWorker(String address, String ip, int port) {
-        lg.info("Registering worker in "+address);
         Worker w = new Worker(address,port);
-        ws.add(w);
+        wt.put(w.getId(),w);
         lg.info("Registered worker in "+w.getAddress());
         return 0;
     }
-    public String getJobs() {
-        return "";
+    public List<Job> getJobs() {
+        return jt.entrySet()
+            .stream()
+            .map(entry -> entry.getValue())
+            .collect(Collectors.toList());
     }
-    public String getJobs(String jobId) {
-        Job job = jt.get(jobId);
-        if(job == null) return "";
-        return job.toString();
+    public Job getJobs(String jobId) {
+        return jt.get(jobId);
+    }
+    public List<Worker> getWorkers() {
+        return wt.entrySet()
+            .stream()
+            .map(entry -> entry.getValue())
+            .collect(Collectors.toList());
+    }
+    public Worker getWorkers(String workerId) {
+        return wt.get(workerId);
+    }
+    public Job deleteJob(String jobId) {
+        return jt.remove(jobId);
+    }
+    public Worker deleteWorker(String workerId) {
+        return wt.remove(workerId);
     }
 }

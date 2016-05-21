@@ -6,14 +6,6 @@ import org.junit.AfterClass;
 import static org.junit.Assert.*;
 
 public class BashJobTest {
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-    }
-
     private void runCheck(String command, String stdOut) {
         runCheck(command,stdOut,null);
     }

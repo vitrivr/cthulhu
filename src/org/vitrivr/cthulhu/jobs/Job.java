@@ -6,12 +6,21 @@ import com.google.gson.Gson;
    The Job interface. Defines the basic methods for jobs to be manipulated.
  */
 abstract public class Job implements Comparable<Job>{
+    static enum Status{
+        SUCCEEDED, 
+        FAILED, 
+        WAITING, 
+        INTERRUPTED, 
+        UNEXPECTED_ERROR
+    }
     static final int PROGRAM_FAILURE = 5; // Failure from our program
     static final int JOB_INTERRUPTION = 3; // The job received an interruption while running
     static final int JOB_FAILURE = 1;     // Failure in the job
 
     String type;
     String name;
+    String action;
+    int status;
     int priority = 2; // Default priority is 2
     int res;
     /**
@@ -27,19 +36,27 @@ abstract public class Job implements Comparable<Job>{
      */
     public Job() {
     }
+
+    public int getStatus() {
+        return status;
+    }
     
     /**
      * Returns the type of the job.
      */
     public String getType(){
-        return this.type;
+        return type;
+    }
+
+    public String getAction() {
+        return action;
     }
 
     /**
      * Returns the priority of the job.
      */
     public int getPriority(){
-        return this.priority;
+        return priority;
     }
     public void setPriority(int priority){
         this.priority = priority;
