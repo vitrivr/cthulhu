@@ -6,23 +6,24 @@ import com.google.gson.Gson;
    The Job interface. Defines the basic methods for jobs to be manipulated.
  */
 abstract public class Job implements Comparable<Job>{
-    static enum Status{
-        SUCCEEDED, 
-        FAILED, 
-        WAITING, 
-        INTERRUPTED, 
-        UNEXPECTED_ERROR
+    public static enum Status{
+        SUCCEEDED(0),  // Failure in the job
+        FAILED(1),   // Job failed while running
+        WAITING(2), // Job has been created, but it has not been run.
+        INTERRUPTED(3), // The job received an interruption while running
+        UNEXPECTED_ERROR(4); // Failure from our program
+        private final int value;
+        Status (final int newValue) {
+            value = newValue;
+        }
+        public int getValue() { return value; }
     }
-    static final int PROGRAM_FAILURE = 5; // Failure from our program
-    static final int JOB_INTERRUPTION = 3; // The job received an interruption while running
-    static final int JOB_FAILURE = 1;     // Failure in the job
 
     String type;
     String name;
     String action;
-    int status;
+    Status status = Status.WAITING;
     int priority = 2; // Default priority is 2
-    int res;
     /**
      * Executes the job.
      * <p>
@@ -38,7 +39,7 @@ abstract public class Job implements Comparable<Job>{
     }
 
     public int getStatus() {
-        return status;
+        return status.getValue();
     }
     
     /**

@@ -31,6 +31,7 @@ public class BashJob extends Job {
     public int execute() {
         ProcessBuilder pb = new ProcessBuilder("sh");
         Process p;
+        int retVal = 1; //Error unless changed later on
         try {
             p = pb.start();
             OutputStream os = p.getOutputStream();
@@ -44,18 +45,19 @@ public class BashJob extends Job {
             this.stdOut = IOUtils.toString(is,"UTF-8");
             this.stdErr = IOUtils.toString(es,"UTF-8");
         } catch (IOException e) {
-            this.res = Job.PROGRAM_FAILURE;
-            return this.res;
+            status = Job.Status.FAILED;
+            return status.getValue();
         }
         try {
-            this.res = p.waitFor();
+            retVal = p.waitFor();
+            if(retVal == 0) status = Job.Status.SUCCEEDED;
         } catch (InterruptedException e) {
-            this.res = Job.JOB_INTERRUPTION;
+            status = Job.Status.INTERRUPTED;
         } finally {
-            return this.res;
+            return status.getValue();
         }
     }
 
-    public String getStdOut() { return this.stdOut; }
-    public String getStdErr() { return this.stdErr; }
+    public String getStdOut() { return stdOut; }
+    public String getStdErr() { return stdErr; }
 }
