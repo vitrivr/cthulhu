@@ -1,6 +1,7 @@
 package org.vitrivr.cthulhu.scheduler;
 
 import static spark.Spark.*;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,11 +39,16 @@ public class MasterAPI {
         cli.start();
 
         LOGGER.info("Creating REST paths");
-        setupRESTCalls();
+        String sf = prop.getProperty("staticfiles");
+        int port = Integer.parseInt(prop.getProperty("port") != null ? prop.getProperty("port") : "8082");
+        setupRESTCalls(sf,port);
         LOGGER.info("Ready!");
     }
 
-    public static void setupRESTCalls() {
+    public static void setupRESTCalls(String staticFilesDir, int listenPort) {
+        port(listenPort);
+        LOGGER.info("Static files are served from: "+staticFilesDir);
+        staticFileLocation(staticFilesDir);
         get("/jobs/:id", (req, res) -> {
                 String id = req.params(":id");
                 if(id.equals("")) res.status(400);

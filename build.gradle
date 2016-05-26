@@ -40,7 +40,7 @@ sourceSets {
             srcDir 'src'
         }
         resources {
-            srcDir 'config'
+            srcDir 'resources'
         }
     }
     test {
