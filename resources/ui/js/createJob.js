@@ -40,8 +40,13 @@
           return;
         }
         console.log("Posting job creation...");
-        $.post("/jobs", getJobDef(),function(){alert("success");});
+        $.post("/jobs", JSON.stringify(getJobDef()),
+               function(){alert("success");});
       }
   $("#jobform .jobdata").change(refreshJobDef);
   $("#createButton").click(submitJobDef);
+
+  /* Code for extra job attributes (key:value pairs to add at job creation)
+   */
+  $("#addKeyValButton").click(function(){console.log("IMPLEMENT ADD K/V PAIR"););
 }());
