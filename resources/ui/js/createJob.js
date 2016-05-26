@@ -48,5 +48,5 @@
 
   /* Code for extra job attributes (key:value pairs to add at job creation)
    */
-  $("#addKeyValButton").click(function(){console.log("IMPLEMENT ADD K/V PAIR"););
+  $("#addKeyValButton").click(function(){console.log("IMPLEMENT ADD K/V PAIR");});
 }());
