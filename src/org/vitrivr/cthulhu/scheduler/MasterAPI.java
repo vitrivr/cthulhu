@@ -10,6 +10,10 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import java.util.Properties;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.worker.Worker;
 
@@ -18,6 +22,15 @@ public class MasterAPI {
     private static Logger LOGGER = LogManager.getLogger("r.m");
     private static Gson gson;
     public static void main(String[] args) {
+        LOGGER.info("Loading properties");
+        Properties prop = new Properties();
+        try {
+            InputStream input = MasterAPI.class.getClassLoader().getResourceAsStream("cthulhu.properties");
+            prop.load(input);
+        } catch (IOException io) {
+            LOGGER.warn("Failed to load properties file. Using default settings.");
+        }
+
         LOGGER.info("Starting up");
         ms = new MasterScheduler();
         gson = new Gson();
@@ -25,6 +38,11 @@ public class MasterAPI {
         cli.start();
 
         LOGGER.info("Creating REST paths");
+        setupRESTCalls();
+        LOGGER.info("Ready!");
+    }
+
+    public static void setupRESTCalls() {
         get("/jobs/:id", (req, res) -> {
                 String id = req.params(":id");
                 if(id.equals("")) res.status(400);
@@ -63,8 +81,9 @@ public class MasterAPI {
                 if(worker == null) res.status(400);
                 return "";
             });
-
-        LOGGER.info("Ready!");
+        put("/jobs/:id",(req,res) -> {
+                return "";
+            });
     }
 
     private static final class APICLIThread extends Thread {

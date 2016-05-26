@@ -11,7 +11,8 @@ abstract public class Job implements Comparable<Job>{
         FAILED(1),   // Job failed while running
         WAITING(2), // Job has been created, but it has not been run.
         INTERRUPTED(3), // The job received an interruption while running
-        UNEXPECTED_ERROR(4); // Failure from our program
+        UNEXPECTED_ERROR(4), // Failure from our program
+        RUNNING(5);
         private final int value;
         Status (final int newValue) {
             value = newValue;
@@ -40,6 +41,10 @@ abstract public class Job implements Comparable<Job>{
 
     public int getStatus() {
         return status.getValue();
+    }
+
+    public void setRunning() {
+        status = Status.RUNNING;
     }
     
     /**
