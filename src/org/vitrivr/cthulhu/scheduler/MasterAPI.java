@@ -77,7 +77,15 @@ public class MasterAPI {
 
         delete("/jobs/:id", (req, res) -> {
                 String id = req.params(":id");
-                Job job = ms.deleteJob(id);
+                boolean force = false;
+                if(req.attribute("force") != null) force = Boolean.parseBoolean(req.attribute("force"));
+                Job job;
+                try {
+                    job = ms.deleteJob(id,force);
+                } catch (Exception e) {
+                    res.status(400);
+                    return e.getMessage();
+                }
                 if(job == null) res.status(400);
                 return "";
             });

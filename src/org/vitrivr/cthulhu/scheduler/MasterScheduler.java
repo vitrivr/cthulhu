@@ -56,7 +56,17 @@ public class MasterScheduler {
     public Worker getWorkers(String workerId) {
         return wt.get(workerId);
     }
-    public Job deleteJob(String jobId) {
+    public Job deleteJob(String jobId) throws Exception {
+        return deleteJob(jobId, false);
+    }
+    public Job deleteJob(String jobId, boolean force) throws Exception {
+        Job j = jt.get(jobId);
+        if(j.isRunning() && force == false) {
+            throw new Exception("Can not delete job that is running. Wait until it finishes, or use force=True.");
+        }
+        if(j.isRunning()) {
+            // Stop the job in the worker.
+        }
         return jt.remove(jobId);
     }
     public Worker deleteWorker(String workerId) {

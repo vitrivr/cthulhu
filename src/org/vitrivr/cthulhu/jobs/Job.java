@@ -1,6 +1,7 @@
 package org.vitrivr.cthulhu.jobs;
 
 import com.google.gson.Gson;
+import java.time.LocalDateTime;
 
 /**
    The Job interface. Defines the basic methods for jobs to be manipulated.
@@ -24,6 +25,7 @@ abstract public class Job implements Comparable<Job>{
     String name;
     String action;
     Status status = Status.WAITING;
+    LocalDateTime created_at;
     int priority = 2; // Default priority is 2
     /**
      * Executes the job.
@@ -37,6 +39,11 @@ abstract public class Job implements Comparable<Job>{
      * Creates a job without arguments
      */
     public Job() {
+        created_at = LocalDateTime.now();
+    }
+
+    public boolean isRunning() {
+        return status == Status.RUNNING;
     }
 
     public int getStatus() {
@@ -78,9 +85,14 @@ abstract public class Job implements Comparable<Job>{
         return json;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return created_at;
+    }
+
     public int compareTo(Job o) {
         if(priority > o.getPriority()) return 1;
-        if(priority == o.getPriority()) return 0;
+        if(priority == o.getPriority() && created_at.compareTo(o.getCreatedAt()) == 1) return 1;
+        if(priority == o.getPriority() && created_at.compareTo(o.getCreatedAt()) == 0) return 0;
         return -1;
     }
 }

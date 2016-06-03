@@ -16,13 +16,16 @@ public class BashJob extends Job {
     String stdErr;
 
     protected BashJob(){
+        super();
     }
 
     protected BashJob(String action) {
+        super();
         this.action = action;
         this.type = "BashJob";
     }
     protected BashJob(String action, int priority) {
+        super();
         this.action = action;
         this.priority = priority;
         this.type = "BashJob";

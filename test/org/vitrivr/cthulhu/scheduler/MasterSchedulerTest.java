@@ -31,7 +31,9 @@ public class MasterSchedulerTest {
         assertEquals(jb.getAction(),"echo wah");
         assertEquals(jb.getPriority(),2); // Default priority
         
-        ms.deleteJob("wahJob");
+        try {
+            ms.deleteJob("wahJob");
+        } catch (Exception e) {/*Ignoring...*/}
         jb = ms.getJobs("wahJob");
         assertEquals(jb,null);
     }

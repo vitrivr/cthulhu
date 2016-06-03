@@ -24,4 +24,29 @@ public class JobQueueTest {
         assertEquals(hiPri,jq.pop());
         assertEquals(lowPri,jq.pop());
     }
+
+    @Test
+    public void CreatedTimeTest() {
+        JobQueue jq = new JobQueue();
+        BashJob lowPri = new BashJob("",2); // Low priority job
+        try {
+            Thread.sleep(100);
+        } catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+        BashJob laterLowPri = new BashJob("",2); // Second high priority job
+        try {
+            Thread.sleep(100);
+        } catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+        BashJob latestLowPri = new BashJob("",2);
+
+        jq.push(latestLowPri);
+        jq.push(lowPri);
+        jq.push(laterLowPri);
+        assertEquals(lowPri,jq.pop());
+        assertEquals(laterLowPri, jq.pop());
+        assertEquals(latestLowPri, jq.pop());
+    }
 }
