@@ -5,6 +5,8 @@ import org.vitrivr.cthulhu.jobs.JobFactory;
 import org.vitrivr.cthulhu.jobs.JobQueue;
 import org.vitrivr.cthulhu.worker.Worker;
 
+import org.vitrivr.cthulhu.connector.CthulhuRESTConnector;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,6 +15,7 @@ import java.util.Hashtable;
 import java.util.stream.*;
 
 public class MasterScheduler {
+    private CthulhuRESTConnector conn;
     private JobQueue jq;
     private JobFactory jf;
     private Hashtable<String,Worker> wt; // Worker table
@@ -74,6 +77,26 @@ public class MasterScheduler {
     }
 
     public void runDispatch() {
-        System.out.println("Dispatching jobs!");
+
+        // 1. The first stage of the dispatching cycle is to dispatch jobs.
+        List<Worker> availableWks = getWorkers().stream()
+            .filter(w -> w.getCapacity() > w.getJQSize()).collect(Collectors.toList());
+        int freeCapacity = availableWks.stream().mapToInt(w-> w.getCapacity() - w.getJQSize()).sum();
+        int wCount = 0;
+        while(freeCapacity > 0 && jq.size() > 0) {
+            Worker currWorker = availableWks.get(wCount % availableWks.size());
+            wCount += 1; // Increase the worker count
+
+            // If the worker is at capacity, we skip this worker
+            if(currWorker.getCapacity() <= currWorker.getJQSize()) continue;
+
+            // We submit the job
+            Job nextJob = jq.pop();
+            conn.postJob(nextJob,currWorker);
+            freeCapacity -= 1;
+        }
+
+        // 2. The second stage of the dispatching cycle is to update jobs that have
+        //    finished running
     }
 }

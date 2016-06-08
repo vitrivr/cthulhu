@@ -8,12 +8,16 @@ public class Worker{
     String state;
     String address;
     int port;
+    int capacity;
     JobQueue jq;
     public Worker(String address, int port) {
         jq = new JobQueue();
         this.address = address;
         this.port = port;
+        this.capacity = 1; // Jobs that can be run simultaneously
     }
+    public int getCapacity() { return capacity; }
+    public int getJQSize() { return jq.size(); }
     public String getAddress() { return address; }
     public String getId() { return address+":"+Integer.toString(port); }
 }
