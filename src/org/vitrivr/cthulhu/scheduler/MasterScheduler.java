@@ -5,7 +5,7 @@ import org.vitrivr.cthulhu.jobs.JobFactory;
 import org.vitrivr.cthulhu.jobs.JobQueue;
 import org.vitrivr.cthulhu.worker.Worker;
 
-import org.vitrivr.cthulhu.connector.CthulhuRESTConnector;
+import org.vitrivr.cthulhu.rest.CthulhuRESTConnector;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

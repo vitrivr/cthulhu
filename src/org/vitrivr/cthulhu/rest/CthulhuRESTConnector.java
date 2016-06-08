@@ -1,4 +1,4 @@
-package org.vitrivr.cthulhu.connector;
+package org.vitrivr.cthulhu.rest;
 
 import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.worker.Worker;

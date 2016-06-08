@@ -1,4 +1,7 @@
-package org.vitrivr.cthulhu.scheduler;
+package org.vitrivr.cthulhu.runners;
+
+import org.vitrivr.cthulhu.rest.CthulhuREST;
+import org.vitrivr.cthulhu.scheduler.MasterScheduler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,19 +15,15 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-class MainCoordinator {
-    private static CoordinatorAPI api;
-    private static MasterScheduler ms;
-    private static Logger LOGGER = LogManager.getLogger("r.m");
-    public static void main(String[] args) {
+abstract class CthulhuRunner {
+    private CthulhuREST api;
+    private MasterScheduler ms;
+    private Logger LOGGER = LogManager.getLogger("r.m");
+    public void start(String[] args) {
         LOGGER.info("Loading properties");
         Properties prop = new Properties();
         try {
-            InputStream input = MainCoordinator.class.getClassLoader().getResourceAsStream("cthulhu.properties");
+            InputStream input = CthulhuRunner.class.getClassLoader().getResourceAsStream("cthulhu.properties");
             prop.load(input);
         } catch (IOException io) {
             LOGGER.warn("Failed to load properties file. Using default settings.");
@@ -34,7 +33,7 @@ class MainCoordinator {
         cli.start();
 
         ms = new MasterScheduler();
-        api = new CoordinatorAPI();
+        api = new CthulhuREST();
         api.init(ms,prop);
 
         String nodisp = prop.getProperty("nodispatch");
@@ -43,14 +42,13 @@ class MainCoordinator {
             if(prop.getProperty("dispatchDelay") != null) {
                 dispatchDelay = Integer.parseInt(prop.getProperty("dispatchDelay"));
             }
-            ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-            executor.scheduleAtFixedRate(new Runnable() {
-                    public void run() {
-                        ms.runDispatch();
-                    }
-                }, dispatchDelay, dispatchDelay, TimeUnit.SECONDS);
+            setupCoordinator(dispatchDelay);
         }
+        setupWorker();
     }
+
+    abstract public void setupCoordinator(int delay);
+    abstract public void setupWorker();
 
     private static final class APICLIThread extends Thread {
         @Override
@@ -66,7 +64,6 @@ class MainCoordinator {
                     switch(line) {
                     case "exit":
                     case "quit":
-                        LOGGER.info("Exiting");
                         System.exit(0);
                         break;
                     default:
