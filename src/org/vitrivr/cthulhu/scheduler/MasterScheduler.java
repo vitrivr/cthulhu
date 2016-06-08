@@ -72,4 +72,8 @@ public class MasterScheduler {
     public Worker deleteWorker(String workerId) {
         return wt.remove(workerId);
     }
+
+    public void runDispatch() {
+        System.out.println("Dispatching jobs!");
+    }
 }

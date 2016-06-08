@@ -12,31 +12,18 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import java.util.Properties;
-import java.io.FileInputStream;
-import java.io.InputStream;
 
 import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.worker.Worker;
 
-public class MasterAPI {
-    private static MasterScheduler ms;
-    private static Logger LOGGER = LogManager.getLogger("r.m");
-    private static Gson gson;
-    public static void main(String[] args) {
-        LOGGER.info("Loading properties");
-        Properties prop = new Properties();
-        try {
-            InputStream input = MasterAPI.class.getClassLoader().getResourceAsStream("cthulhu.properties");
-            prop.load(input);
-        } catch (IOException io) {
-            LOGGER.warn("Failed to load properties file. Using default settings.");
-        }
-
-        LOGGER.info("Starting up");
-        ms = new MasterScheduler();
+public class CoordinatorAPI {
+    private MasterScheduler ms;
+    private Logger LOGGER = LogManager.getLogger("r.m.api");
+    private Gson gson;
+    public void init(MasterScheduler ms, Properties prop) {
+        //ms = new MasterScheduler();
+        this.ms = ms;
         gson = new Gson();
-        APICLIThread cli = new APICLIThread();
-        cli.start();
 
         LOGGER.info("Creating REST paths");
         String sf = prop.getProperty("staticfiles");
@@ -45,7 +32,7 @@ public class MasterAPI {
         LOGGER.info("Ready!");
     }
 
-    public static void setupRESTCalls(String staticFilesDir, int listenPort) {
+    public void setupRESTCalls(String staticFilesDir, int listenPort) {
         port(listenPort);
         LOGGER.info("Static files are served from: "+staticFilesDir);
         staticFileLocation(staticFilesDir);
@@ -98,32 +85,5 @@ public class MasterAPI {
         put("/jobs/:id",(req,res) -> {
                 return "";
             });
-    }
-
-    private static final class APICLIThread extends Thread {
-        @Override
-        public void run() {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            String line = null;
-            try {
-                while ((line = reader.readLine()) != null) {
-                    line = line.trim();
-                    if (line.isEmpty()) {
-                        continue;
-                    }
-                    switch(line) {
-                    case "exit":
-                    case "quit":
-                        LOGGER.info("Exiting");
-                        System.exit(0);
-                        break;
-                    default:
-                        System.out.println("Unrecognized command: "+line);
-                    }
-                }
-            } catch (IOException e) {
-                // Ignore the exception
-            }
-        }
     }
 }

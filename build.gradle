@@ -50,7 +50,7 @@ sourceSets {
     }    
 }
 
-mainClassName='org.vitrivr.cthulhu.scheduler.MasterAPI'
+mainClassName='org.vitrivr.cthulhu.scheduler.MainCoordinator'
 
 jar {
     manifest {
