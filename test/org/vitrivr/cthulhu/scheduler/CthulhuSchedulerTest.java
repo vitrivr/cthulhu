@@ -13,12 +13,12 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class MasterSchedulerTest {
-    static MasterScheduler ms;
+public class CthulhuSchedulerTest {
+    static CthulhuScheduler ms;
     static JobFactory jf;
     @BeforeClass
     public static void setupBeforeClass() {
-        ms = new MasterScheduler();
+        ms = new CoordinatorScheduler(null);
         jf = new JobFactory();
     }
 

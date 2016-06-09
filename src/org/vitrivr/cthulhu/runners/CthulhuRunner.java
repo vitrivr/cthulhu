@@ -1,7 +1,8 @@
 package org.vitrivr.cthulhu.runners;
 
 import org.vitrivr.cthulhu.rest.CthulhuREST;
-import org.vitrivr.cthulhu.scheduler.MasterScheduler;
+import org.vitrivr.cthulhu.scheduler.CthulhuScheduler;
+import org.vitrivr.cthulhu.scheduler.SchedulerFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,11 +16,11 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-abstract class CthulhuRunner {
-    private CthulhuREST api;
-    private MasterScheduler ms;
-    private Logger LOGGER = LogManager.getLogger("r.m");
-    public void start(String[] args) {
+public class CthulhuRunner {
+    private static CthulhuREST api;
+    private static CthulhuScheduler ms;
+    private static Logger LOGGER = LogManager.getLogger("r.m");
+    public static void main(String[] args) {
         LOGGER.info("Loading properties");
         Properties prop = new Properties();
         try {
@@ -32,23 +33,12 @@ abstract class CthulhuRunner {
         APICLIThread cli = new APICLIThread();
         cli.start();
 
-        ms = new MasterScheduler();
+        SchedulerFactory sf = new SchedulerFactory();
+        ms = sf.createScheduler("coordinator", prop); // Update later
         api = new CthulhuREST();
         api.init(ms,prop);
-
-        String nodisp = prop.getProperty("nodispatch");
-        if(nodisp == null) { // We 'activate' the dispatching logic
-            int dispatchDelay = 10;
-            if(prop.getProperty("dispatchDelay") != null) {
-                dispatchDelay = Integer.parseInt(prop.getProperty("dispatchDelay"));
-            }
-            setupCoordinator(dispatchDelay);
-        }
-        setupWorker();
+        
     }
-
-    abstract public void setupCoordinator(int delay);
-    abstract public void setupWorker();
 
     private static final class APICLIThread extends Thread {
         @Override
@@ -64,6 +54,7 @@ abstract class CthulhuRunner {
                     switch(line) {
                     case "exit":
                     case "quit":
+                        LOGGER.info("Exiting...");
                         System.exit(0);
                         break;
                     default:

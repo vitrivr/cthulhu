@@ -14,18 +14,21 @@ import java.util.List;
 import java.util.Hashtable;
 import java.util.stream.*;
 
-public class MasterScheduler {
-    private CthulhuRESTConnector conn;
-    private JobQueue jq;
+import java.util.Properties;
+
+public abstract class CthulhuScheduler {
+    protected CthulhuRESTConnector conn;
+    protected JobQueue jq;
     private JobFactory jf;
-    private Hashtable<String,Worker> wt; // Worker table
-    private Hashtable<String,Job> jt; // Job table
-    private Logger lg;
-    public MasterScheduler() {
+    protected Hashtable<String,Worker> wt; // Worker table
+    protected Hashtable<String,Job> jt; // Job table
+    protected Logger lg;
+    protected Properties props;
+    public CthulhuScheduler(Properties props) {
         jq = new JobQueue();
         jf = new JobFactory();
-        wt = new Hashtable<String,Worker>();
         jt = new Hashtable<String,Job>();
+        this.props = props;
         lg = LogManager.getLogger("r.m.ms"); // master.masterscheduler
     }
     public int registerJob(String jobDefinition) {
@@ -77,15 +80,17 @@ public class MasterScheduler {
     }
 
     public void runDispatch() {
+        // 1. The first stage of the dispatching cycle is to update jobs that have
+        //    finished running
 
-        // 1. The first stage of the dispatching cycle is to dispatch jobs.
+        // 2. The second stage of the dispatching cycle is to dispatch jobs.
         List<Worker> availableWks = getWorkers().stream()
             .filter(w -> w.getCapacity() > w.getJQSize()).collect(Collectors.toList());
         int freeCapacity = availableWks.stream().mapToInt(w-> w.getCapacity() - w.getJQSize()).sum();
         int wCount = 0;
         while(freeCapacity > 0 && jq.size() > 0) {
             Worker currWorker = availableWks.get(wCount % availableWks.size());
-            wCount += 1; // Increase the worker count
+            wCount += 1; // Increase the worker round robin count
 
             // If the worker is at capacity, we skip this worker
             if(currWorker.getCapacity() <= currWorker.getJQSize()) continue;
@@ -95,8 +100,5 @@ public class MasterScheduler {
             conn.postJob(nextJob,currWorker);
             freeCapacity -= 1;
         }
-
-        // 2. The second stage of the dispatching cycle is to update jobs that have
-        //    finished running
     }
 }

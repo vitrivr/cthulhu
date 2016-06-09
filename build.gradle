@@ -50,13 +50,13 @@ sourceSets {
     }    
 }
 
-mainClassName='org.vitrivr.cthulhu.runners.MainCoordinator'
+mainClassName='org.vitrivr.cthulhu.runners.CthulhuRunner'
 
 jar {
     manifest {
-             attributes 'Main-Class': 'org.vitrivr.cthulhu.scheduler.MasterAPI'
+             attributes 'Main-Class': 'org.vitrivr.cthulhu.scheduler.CthulhuRunner'
     }
-    archiveName = 'cthulhu.jar'
+    archiveName = 'cthulhucoord.jar'
     from {
          configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }

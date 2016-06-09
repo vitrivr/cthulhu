@@ -1,6 +1,6 @@
 package org.vitrivr.cthulhu.rest;
 
-import org.vitrivr.cthulhu.scheduler.MasterScheduler;
+import org.vitrivr.cthulhu.scheduler.CthulhuScheduler;
 
 import static spark.Spark.*;
 
@@ -19,10 +19,10 @@ import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.worker.Worker;
 
 public class CthulhuREST {
-    private MasterScheduler ms;
+    private CthulhuScheduler ms;
     private Logger LOGGER = LogManager.getLogger("r.m.api");
     private Gson gson;
-    public void init(MasterScheduler ms, Properties prop) {
+    public void init(CthulhuScheduler ms, Properties prop) {
         //ms = new MasterScheduler();
         this.ms = ms;
         gson = new Gson();
