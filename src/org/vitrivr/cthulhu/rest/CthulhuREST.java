@@ -22,6 +22,7 @@ public class CthulhuREST {
     private CthulhuScheduler ms;
     private Logger LOGGER = LogManager.getLogger("r.m.api");
     private Gson gson;
+    private int port;
     public void init(CthulhuScheduler ms, Properties prop) {
         //ms = new MasterScheduler();
         this.ms = ms;
@@ -29,7 +30,7 @@ public class CthulhuREST {
 
         LOGGER.info("Creating REST paths");
         String sf = prop.getProperty("staticfiles");
-        int port = Integer.parseInt(prop.getProperty("port") != null ? prop.getProperty("port") : "8082");
+        port = Integer.parseInt(prop.getProperty("port"));
         setupRESTCalls(sf,port);
         LOGGER.info("Ready!");
     }

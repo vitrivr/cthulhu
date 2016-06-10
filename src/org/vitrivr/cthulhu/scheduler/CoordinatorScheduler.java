@@ -45,6 +45,7 @@ public class CoordinatorScheduler extends CthulhuScheduler {
             .filter(w -> w.getCapacity() > w.getJQSize()).collect(Collectors.toList());
         int freeCapacity = availableWks.stream().mapToInt(w-> w.getCapacity() - w.getJQSize()).sum();
         int wCount = 0;
+        int jobsDispatched = 0;
         while(freeCapacity > 0 && jq.size() > 0) {
             Worker currWorker = availableWks.get(wCount % availableWks.size());
             wCount += 1; // Increase the worker round robin count
@@ -56,6 +57,8 @@ public class CoordinatorScheduler extends CthulhuScheduler {
             Job nextJob = jq.pop();
             conn.postJob(nextJob,currWorker);
             freeCapacity -= 1;
+            jobsDispatched += 1;
         }
+        lg.info("Dispatched "+jobsDispatched+" jobs");
     }
 }

@@ -28,6 +28,7 @@ public abstract class CthulhuScheduler {
         jq = new JobQueue();
         jf = new JobFactory();
         jt = new Hashtable<String,Job>();
+        conn = new CthulhuRESTConnector();
         this.props = props;
         lg = LogManager.getLogger("r.m.ms"); // master.masterscheduler
     }
@@ -39,6 +40,7 @@ public abstract class CthulhuScheduler {
         return 0;
     }
     public int registerWorker(String address, String ip, int port) {
+        if(address == null || address.equals("")) address = ip;
         Worker w = new Worker(address,port);
         wt.put(w.getId(),w);
         lg.info("Registered worker in "+w.getAddress());

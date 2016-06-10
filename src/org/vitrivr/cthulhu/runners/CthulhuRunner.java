@@ -23,6 +23,10 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import java.util.Enumeration;
+import java.net.NetworkInterface;
+import java.net.InetAddress;
+
 public class CthulhuRunner {
     private static CthulhuREST api;
     private static CthulhuScheduler ms;
@@ -33,14 +37,41 @@ public class CthulhuRunner {
     }
     static RunnerType type = RunnerType.COORDINATOR;
 
-    static CommandLine parseCommandLine(String[] args) {
+    // Returns first available non-loopback, active IP address
+    static String getIPAddress() {
+        String ip = null;
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                // filters out 127.0.0.1 and inactive interfaces
+                if (iface.isLoopback() || !iface.isUp())
+                    continue;
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                while(addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    if(addr.isLinkLocalAddress()) continue;
+                    ip = addr.getHostAddress();
+                    return ip;
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return "127.0.0.1"; // If no IP was found earlier, just return loopback interface
+    }
+
+    static CommandLine populateProperties(String[] args, Properties prop) {
         CommandLineParser parser = new DefaultParser();
         Options options = new Options();
         options.addOption("h","help",false,"Display help menu");
         options.addOption("C","coordinator",false,"Run as coordinator");
         options.addOption("W","worker",false,"Run as worker");
-        options.addOption("ha","host",true,"Address of coordinator host [for workers]");
-        options.addOption("hp","hostPort",true,"Port of coordinator host [for workers]");
+        options.addOption("ha","hostAddress",true,"Address of coordinator host [for workers] - overrides properties file");
+        options.addOption("hp","hostPort",true,"Port of coordinator host [for workers] - overrides properties file");
+        options.addOption("c","capacity",true,"Capacity, or number of jobs that can run simultaneously [for workers]");
+        options.addOption("p","port",true,"Port in which to listen to - overrides properties file");
+        options.addOption("a","address",true,"Address of the local host (DNS? IP?) - overrides properties file");
         CommandLine line;
         try {
             line = parser.parse(options,args);
@@ -48,10 +79,31 @@ public class CthulhuRunner {
             line = null;
             LOGGER.error("ERROR Parsing command line.");
         }
+
         if(line != null && line.hasOption("W")) {
+            LOGGER.info("Starting up as worker");
             type = RunnerType.WORKER; // Changing the runner type
-            // If it's a woker, but no COORDINATOR information is input
-            if(!line.hasOption("ha") || !line.hasOption("hp")) line = null;
+
+            String hostAddress = null;
+            if(prop.getProperty("hostAddress") != null) hostAddress = prop.getProperty("hostAddress");
+            if(line.hasOption("ha")) hostAddress = line.getOptionValue("ha");
+            prop.setProperty("hostAddress",hostAddress);
+
+            String hostPort = "8082"; // Default port
+            if(prop.getProperty("hostPort") != null) hostPort = prop.getProperty("hostPort");
+            if(line.hasOption("hp")) hostPort = line.getOptionValue("hp");
+            prop.setProperty("hostPort",hostPort);
+
+            if(hostAddress == null) line = null; // Host address is unknown. Can't continue.
+        }
+        if(prop.getProperty("port") == null && line != null) {
+            LOGGER.info("Setting up port to listen on");
+            prop.setProperty("port", (line.hasOption("p") ? line.getOptionValue("p") : "8082"));
+        }
+        if(prop.getProperty("address") == null && line != null) {
+            LOGGER.info("Setting host address");
+            String ip = getIPAddress();
+            prop.setProperty("address", (line.hasOption("a") ? line.getOptionValue("a") : ip));
         }
         if(line == null || line.hasOption("h")) {
             String header = "Run the Cthulhu task scheduler\n\n";
@@ -64,10 +116,6 @@ public class CthulhuRunner {
     }
 
     public static void main(String[] args) {
-        LOGGER.info("Reading command line arguments");
-        CommandLine line = parseCommandLine(args);
-        if(line == null) return;
-
         LOGGER.info("Loading properties");
         Properties prop = new Properties();
         try {
@@ -76,6 +124,10 @@ public class CthulhuRunner {
         } catch (IOException io) {
             LOGGER.warn("Failed to load properties file. Using default settings.");
         }
+        LOGGER.info("Reading command line arguments");
+        CommandLine line = populateProperties(args,prop);
+        if(line == null) return;
+
         LOGGER.info("Starting up");
         APICLIThread cli = new APICLIThread();
         cli.start();

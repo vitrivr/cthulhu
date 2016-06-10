@@ -20,5 +20,13 @@ import java.util.Properties;
 public class WorkerScheduler extends CthulhuScheduler {
     public WorkerScheduler(Properties props) {
         super(props);
+        int port = Integer.parseInt(props.getProperty("port"));
+        informCoordinator(props.getProperty("hostAddress"),
+                          Integer.parseInt(props.getProperty("hostPort")),
+                          props.getProperty("address"),
+                          Integer.parseInt(props.getProperty("port")));
+    }
+    void informCoordinator(String coordAddress, int coordPort, String workerAddress, int workerPort) {
+        conn.postWorker(coordAddress,coordPort,workerAddress,workerPort);
     }
 }

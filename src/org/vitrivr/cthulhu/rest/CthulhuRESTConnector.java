@@ -9,4 +9,8 @@ public class CthulhuRESTConnector {
     }
     public void putJob(Job j, Worker w) {
     }
+    public void postWorker(String coordAddress, int coordPort,
+                           String workerAddress, int workerPort) {
+        System.out.println("Posted worker!");
+    }
 }
