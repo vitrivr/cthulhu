@@ -61,7 +61,7 @@ public class CthulhuRunner {
         return "127.0.0.1"; // If no IP was found earlier, just return loopback interface
     }
 
-    static CommandLine populateProperties(String[] args, Properties prop) {
+    static CommandLine populateProperties(String[] args, Properties prop) throws Exception {
         CommandLineParser parser = new DefaultParser();
         Options options = new Options();
         options.addOption("h","help",false,"Display help menu");
@@ -96,14 +96,15 @@ public class CthulhuRunner {
 
             if(hostAddress == null) line = null; // Host address is unknown. Can't continue.
         }
-        if(prop.getProperty("port") == null && line != null) {
+        if((line != null && line.hasOption("p")) || prop.getProperty("port") == null) {
             LOGGER.info("Setting up port to listen on");
-            prop.setProperty("port", (line.hasOption("p") ? line.getOptionValue("p") : "8082"));
+            String defaultPort = prop.getProperty("port") != null ? prop.getProperty("port") : "8082";
+            prop.setProperty("port", (line.hasOption("p") ? line.getOptionValue("p") : defaultPort));
         }
-        if(prop.getProperty("address") == null && line != null) {
+        if((line != null && line.hasOption("a")) || prop.getProperty("address") == null) {
             LOGGER.info("Setting host address");
-            String ip = getIPAddress();
-            prop.setProperty("address", (line.hasOption("a") ? line.getOptionValue("a") : ip));
+            String defaultIp = prop.getProperty("address") != null ? prop.getProperty("address") : getIPAddress();
+            prop.setProperty("address", (line.hasOption("a") ? line.getOptionValue("a") : defaultIp));
         }
         if(line == null || line.hasOption("h")) {
             String header = "Run the Cthulhu task scheduler\n\n";
@@ -115,7 +116,7 @@ public class CthulhuRunner {
         return line;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         LOGGER.info("Loading properties");
         Properties prop = new Properties();
         try {
@@ -124,19 +125,25 @@ public class CthulhuRunner {
         } catch (IOException io) {
             LOGGER.warn("Failed to load properties file. Using default settings.");
         }
-        LOGGER.info("Reading command line arguments");
-        CommandLine line = populateProperties(args,prop);
-        if(line == null) return;
+        try {
+            LOGGER.info("Reading command line arguments");
+            CommandLine line = populateProperties(args,prop);
+            if(line == null) return;
+            
+            LOGGER.info("Starting up");
+            APICLIThread cli = new APICLIThread();
+            cli.start();
 
-        LOGGER.info("Starting up");
-        APICLIThread cli = new APICLIThread();
-        cli.start();
-
-        SchedulerFactory sf = new SchedulerFactory();
-        ms = sf.createScheduler(type, prop); // Update later
-        api = new CthulhuREST();
-        api.init(ms,prop);
-        
+            SchedulerFactory sf = new SchedulerFactory();
+            ms = sf.createScheduler(type, prop); // Update later
+            api = new CthulhuREST();
+            api.init(ms,prop);
+        } catch (Exception e) {
+            LOGGER.info("Exception has been thrown during startup.");
+            if(ms != null) ms.stop();
+            if(api != null) api.stopServer();
+            System.exit(1);
+        }
     }
 
     private static final class APICLIThread extends Thread {

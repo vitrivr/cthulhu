@@ -80,27 +80,6 @@ public abstract class CthulhuScheduler {
     public Worker deleteWorker(String workerId) {
         return wt.remove(workerId);
     }
-
-    public void runDispatch() {
-        // 1. The first stage of the dispatching cycle is to update jobs that have
-        //    finished running
-
-        // 2. The second stage of the dispatching cycle is to dispatch jobs.
-        List<Worker> availableWks = getWorkers().stream()
-            .filter(w -> w.getCapacity() > w.getJQSize()).collect(Collectors.toList());
-        int freeCapacity = availableWks.stream().mapToInt(w-> w.getCapacity() - w.getJQSize()).sum();
-        int wCount = 0;
-        while(freeCapacity > 0 && jq.size() > 0) {
-            Worker currWorker = availableWks.get(wCount % availableWks.size());
-            wCount += 1; // Increase the worker round robin count
-
-            // If the worker is at capacity, we skip this worker
-            if(currWorker.getCapacity() <= currWorker.getJQSize()) continue;
-
-            // We submit the job
-            Job nextJob = jq.pop();
-            conn.postJob(nextJob,currWorker);
-            freeCapacity -= 1;
-        }
+    public void stop() {
     }
 }

@@ -23,16 +23,22 @@ public class CthulhuREST {
     private Logger LOGGER = LogManager.getLogger("r.m.api");
     private Gson gson;
     private int port;
-    public void init(CthulhuScheduler ms, Properties prop) {
+    public void init(CthulhuScheduler ms, Properties prop) throws Exception {
         //ms = new MasterScheduler();
         this.ms = ms;
         gson = new Gson();
 
         LOGGER.info("Creating REST paths");
         String sf = prop.getProperty("staticfiles");
-        port = Integer.parseInt(prop.getProperty("port"));
+        try {
+            port = Integer.parseInt(prop.getProperty("port"));
+        } catch (Exception e) { throw e; }
         setupRESTCalls(sf,port);
         LOGGER.info("Ready!");
+    }
+
+    public void stopServer() {
+        stop();
     }
 
     public void setupRESTCalls(String staticFilesDir, int listenPort) {

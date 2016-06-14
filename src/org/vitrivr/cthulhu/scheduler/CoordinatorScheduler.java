@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ScheduledFuture;
 
 import java.util.List;
 import java.util.Hashtable;
@@ -19,6 +20,8 @@ import java.util.stream.*;
 import java.util.Properties;
 
 public class CoordinatorScheduler extends CthulhuScheduler {
+    ScheduledExecutorService executor;
+    ScheduledFuture dispatchFuture;
     public CoordinatorScheduler(Properties props) {
         super(props);
         wt = new Hashtable<String,Worker>();
@@ -28,13 +31,18 @@ public class CoordinatorScheduler extends CthulhuScheduler {
             dispatchDelay = Integer.parseInt(props.getProperty("dispatchDelay"));
         }
     
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(new Runnable() {
+        executor = Executors.newScheduledThreadPool(1);
+        dispatchFuture = executor.scheduleAtFixedRate(new Runnable() {
                 public void run() {
                     System.out.println("Running dispatch...");
                     runDispatch();
                 }
             }, dispatchDelay, dispatchDelay, TimeUnit.SECONDS);
+    }
+
+    public void stop() {
+        if(dispatchFuture != null) dispatchFuture.cancel(true);
+        if(executor != null) executor.shutdown();
     }
     public void runDispatch() {
         // 1. The first stage of the dispatching cycle is to update jobs that have
