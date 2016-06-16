@@ -3,7 +3,8 @@ Distributed job-scheduler for feature extraction.
 
 ## Running the Cthulhu Scheduler
             
-```java -jar build/libs/cthulhu.jar --help
+```
+java -jar build/libs/cthulhu.jar --help
 usage: Cthulhu [-a <arg>] [-C] [-c <arg>] [-h] [-ha <arg>] [-hp <arg>] [-p
        <arg>] [-W]
 Run the Cthulhu task scheduler

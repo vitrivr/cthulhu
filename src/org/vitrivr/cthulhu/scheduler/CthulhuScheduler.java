@@ -37,6 +37,7 @@ public abstract class CthulhuScheduler {
         jq.push(job);
         jt.put(job.getName(),job);
         lg.info("Created job "+job.getName());
+        schedulerTick();
         return 0;
     }
     public int registerWorker(String address, String ip, int port) {
@@ -80,6 +81,8 @@ public abstract class CthulhuScheduler {
     }
     public Worker deleteWorker(String workerId) {
         return wt.remove(workerId);
+    }
+    protected void schedulerTick() {
     }
     public void stop() {
     }
