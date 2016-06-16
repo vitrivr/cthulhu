@@ -58,7 +58,6 @@ public class CthulhuRESTConnector {
         makeRequest(w, "GET","/jobs","");
     }
     public void postJob(Job j, Worker w) throws Exception {
-        System.out.println("Sending job "+j.getName()+" to worker "+w.getId());
         makeRequest(w,"POST", "/jobs",gson.toJson(j));
     }
     public void putJob(Job j, Worker w) throws Exception {

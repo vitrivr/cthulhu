@@ -54,9 +54,14 @@ public class CoordinatorScheduler extends CthulhuScheduler {
         int wCount = 0;
         int jobsDispatched = 0;
         Job nextJob = null;
-        lg.info("Starting the dispatch of " + Integer.toString(jq.size()) + 
-                " jobs to " + Integer.toString(freeCapacity) + " spots in "+
-                Integer.toString(availableWks.size())+ "workers.");
+        if(jq.size() > 0 || freeCapacity > 0) {
+            lg.info("Starting the dispatch of " + Integer.toString(jq.size()) + 
+                    " jobs to " + Integer.toString(freeCapacity) + " spots in "+
+                    Integer.toString(availableWks.size())+ "workers.");
+        } else {
+            lg.trace("Unable to dispatch. Jobs waiting: "+ Integer.toString(jq.size()) +
+                     ". Available capacity: "+Integer.toString(freeCapacity));
+        }
         while(freeCapacity > 0 && jq.size() > 0) {
             Worker currWorker = availableWks.get(wCount % availableWks.size());
             wCount += 1; // Increase the worker round robin count
@@ -70,6 +75,7 @@ public class CoordinatorScheduler extends CthulhuScheduler {
                     currWorker.getId()+".");
             try {
                 conn.postJob(nextJob,currWorker);
+                currWorker.addJob(nextJob);
                 nextJob = null;
             } catch (Exception e) {
                 lg.warn("Problems posting job "+nextJob.getName()+" to worker "+
