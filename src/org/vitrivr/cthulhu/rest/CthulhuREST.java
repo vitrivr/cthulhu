@@ -64,8 +64,8 @@ public class CthulhuREST {
                 return "";
             });
         post("/workers", (req, res) -> {
-                String address = req.attribute("address");
-                int port = Integer.parseInt(req.attribute("port"));
+                String address = req.queryParams("address");
+                int port = Integer.parseInt(req.queryParams("port"));
                 int st = ms.registerWorker(address,req.ip(), port);
                 if(st != 0) res.status(400);
                 return "";
@@ -74,7 +74,7 @@ public class CthulhuREST {
         delete("/jobs/:id", (req, res) -> {
                 String id = req.params(":id");
                 boolean force = false;
-                if(req.attribute("force") != null) force = Boolean.parseBoolean(req.attribute("force"));
+                if(req.queryParams("force") != null) force = Boolean.parseBoolean(req.queryParams("force"));
                 Job job;
                 try {
                     job = ms.deleteJob(id,force);

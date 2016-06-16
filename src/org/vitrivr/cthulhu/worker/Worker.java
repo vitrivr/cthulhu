@@ -25,5 +25,6 @@ public class Worker{
     public int getCapacity() { return capacity; }
     public int getJQSize() { return jq.size(); }
     public String getAddress() { return address; }
+    public int getPort(){ return port; }
     public String getId() { return address+":"+Integer.toString(port); }
 }

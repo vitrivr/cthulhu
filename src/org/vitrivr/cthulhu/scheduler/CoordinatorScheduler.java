@@ -34,7 +34,6 @@ public class CoordinatorScheduler extends CthulhuScheduler {
         executor = Executors.newScheduledThreadPool(1);
         dispatchFuture = executor.scheduleAtFixedRate(new Runnable() {
                 public void run() {
-                    System.out.println("Running dispatch...");
                     runDispatch();
                 }
             }, dispatchDelay, dispatchDelay, TimeUnit.SECONDS);
@@ -54,6 +53,10 @@ public class CoordinatorScheduler extends CthulhuScheduler {
         int freeCapacity = availableWks.stream().mapToInt(w-> w.getCapacity() - w.getJQSize()).sum();
         int wCount = 0;
         int jobsDispatched = 0;
+        Job nextJob = null;
+        lg.info("Starting the dispatch of " + Integer.toString(jq.size()) + 
+                " jobs to " + Integer.toString(freeCapacity) + " spots in "+
+                Integer.toString(availableWks.size())+ "workers.");
         while(freeCapacity > 0 && jq.size() > 0) {
             Worker currWorker = availableWks.get(wCount % availableWks.size());
             wCount += 1; // Increase the worker round robin count
@@ -62,8 +65,18 @@ public class CoordinatorScheduler extends CthulhuScheduler {
             if(currWorker.getCapacity() <= currWorker.getJQSize()) continue;
 
             // We submit the job
-            Job nextJob = jq.pop();
-            conn.postJob(nextJob,currWorker);
+            if(nextJob == null) nextJob = jq.pop();
+            lg.trace("Posting job "+nextJob.getName()+" to worker "+
+                    currWorker.getId()+".");
+            try {
+                conn.postJob(nextJob,currWorker);
+                nextJob = null;
+            } catch (Exception e) {
+                lg.warn("Problems posting job "+nextJob.getName()+" to worker "+
+                        currWorker.getId()+": "+e.toString());
+                freeCapacity -= 1;
+                continue;
+            }
             freeCapacity -= 1;
             jobsDispatched += 1;
         }

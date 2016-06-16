@@ -56,6 +56,7 @@ public abstract class CthulhuScheduler {
         return jt.get(jobId);
     }
     public List<Worker> getWorkers() {
+        if(wt == null) return null;
         return wt.entrySet()
             .stream()
             .map(entry -> entry.getValue())
