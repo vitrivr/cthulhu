@@ -53,6 +53,9 @@ abstract public class Job implements Comparable<Job>{
     public void setRunning() {
         status = Status.RUNNING;
     }
+    public void setWaiting() {
+        status = Status.WAITING;
+    }
     
     /**
      * Returns the type of the job.

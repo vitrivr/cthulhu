@@ -59,8 +59,8 @@ public class CthulhuREST {
         get("/workers", (req, res) -> gson.toJson(ms.getWorkers()) );
 
         post("/jobs", (req, res) -> {
-                int st = ms.registerJob(req.body());
-                if(st != 0) res.status(400);
+                Job j = ms.registerJob(req.body());
+                if(j == null) res.status(400);
                 return "";
             });
         post("/workers", (req, res) -> {
@@ -91,7 +91,9 @@ public class CthulhuREST {
                 if(worker == null) res.status(400);
                 return "";
             });
-        put("/jobs/:id",(req,res) -> {
+        put("/jobs",(req,res) -> {
+                Job old = ms.updateJob(req.body());
+                if(old == null) res.status(400);
                 return "";
             });
     }

@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ScheduledFuture;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Hashtable;
 import java.util.stream.*;
 
@@ -43,6 +44,17 @@ public class CoordinatorScheduler extends CthulhuScheduler {
         if(dispatchFuture != null) dispatchFuture.cancel(true);
         if(executor != null) executor.shutdown();
     }
+    @Override
+    protected void updateJobInt(Job job) throws Exception {
+        lg.info("Internal update of job "+job.getName());
+        Worker w = wt.entrySet()
+            .stream()
+            .filter(entry -> entry.getValue().hasJob(job.getName()))
+            .map(Map.Entry::getValue)
+            .findFirst().orElse(null);
+        if(w == null) throw new Exception("Updated job not in any worker yet");
+        w.removeJob(job.getName());
+    }
     public void runDispatch() {
         // 1. The first stage of the dispatching cycle is to update jobs that have
         //    finished running
@@ -57,7 +69,7 @@ public class CoordinatorScheduler extends CthulhuScheduler {
         if(jq.size() > 0 || freeCapacity > 0) {
             lg.info("Starting the dispatch of " + Integer.toString(jq.size()) + 
                     " jobs to " + Integer.toString(freeCapacity) + " spots in "+
-                    Integer.toString(availableWks.size())+ "workers.");
+                    Integer.toString(availableWks.size())+ " workers.");
         } else {
             lg.trace("Unable to dispatch. Jobs waiting: "+ Integer.toString(jq.size()) +
                      ". Available capacity: "+Integer.toString(freeCapacity));
@@ -74,12 +86,15 @@ public class CoordinatorScheduler extends CthulhuScheduler {
             lg.trace("Posting job "+nextJob.getName()+" to worker "+
                     currWorker.getId()+".");
             try {
-                conn.postJob(nextJob,currWorker);
                 currWorker.addJob(nextJob);
+                nextJob.setRunning();
+                conn.postJob(nextJob,currWorker);
                 nextJob = null;
             } catch (Exception e) {
                 lg.warn("Problems posting job "+nextJob.getName()+" to worker "+
                         currWorker.getId()+": "+e.toString());
+                currWorker.removeJob(nextJob.getName());
+                nextJob.setWaiting();
                 freeCapacity -= 1;
                 continue;
             }

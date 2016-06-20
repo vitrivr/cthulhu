@@ -26,6 +26,12 @@ public class Worker{
     public void addJob(Job job) {
         jt.put(job.getName(),job);
     }
+    public Job removeJob(String jobName) {
+        return jt.remove(jobName);
+    }
+    public boolean hasJob(String jobName) {
+        return jt.containsKey(jobName);
+    }
     public Job deleteJob(String jobId) {
         return jt.remove(jobId);
     }

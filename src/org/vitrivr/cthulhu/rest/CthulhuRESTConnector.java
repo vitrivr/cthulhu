@@ -53,15 +53,14 @@ public class CthulhuRESTConnector {
         }
         return resBody;
     }
-    public void getJobs(Worker w) throws Exception {
-        System.out.println("Getting all dem jobs from "+w.getId());
-        makeRequest(w, "GET","/jobs","");
+    public String getJobs(Worker w) throws Exception {
+        String res = makeRequest(w, "GET","/jobs","");
+        return res;
     }
     public void postJob(Job j, Worker w) throws Exception {
         makeRequest(w,"POST", "/jobs",gson.toJson(j));
     }
     public void putJob(Job j, Worker w) throws Exception {
-        System.out.println("Putting job "+j.getName()+" to worker "+w.getId());
         makeRequest(w,"PUT", "/jobs",gson.toJson(j));
     }
     public void postWorker(Worker coordinator,
