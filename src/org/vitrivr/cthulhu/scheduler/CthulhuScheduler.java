@@ -34,16 +34,16 @@ public abstract class CthulhuScheduler {
     }
     public Job updateJob(String jobDefinition) {
         Job job = jf.buildJob(jobDefinition);
-        lg.info("Updating job "+job.getName());
+        lg.info("Updating job {}",job.getName());
         Job oldJob = jt.get(job.getName());
         if(oldJob == null) {
-            lg.warn("Job "+job.getName()+" not existing - unable to update");
+            lg.warn("Job {} not existing - unable to update",job.getName());
             return null;
         }
         try {
             updateJobInt(job);
         } catch (Exception e) {
-            lg.error("Internal job update failed: "+e.toString());
+            lg.error("Internal job update failed: {}",e.toString());
         }
         jt.remove(job.getName());
         jt.put(job.getName(),job);
@@ -53,7 +53,7 @@ public abstract class CthulhuScheduler {
         Job job = jf.buildJob(jobDefinition);
         jq.push(job);
         jt.put(job.getName(),job);
-        lg.info("Created job "+job.getName());
+        lg.info("Created job {}",job.getName());
         schedulerTick();
         return job;
     }
@@ -61,7 +61,7 @@ public abstract class CthulhuScheduler {
         if(address == null || address.equals("")) address = ip;
         Worker w = new Worker(address,port);
         wt.put(w.getId(),w);
-        lg.info("Registered worker in "+w.getAddress());
+        lg.info("Registered worker in ",w.getAddress());
         return 0;
     }
     public List<Job> getJobs() {

@@ -40,7 +40,7 @@ public class WorkerScheduler extends CthulhuScheduler {
     void executeNextJob() {
         if(jq.size() == 0) return;
         Job nextJob = jq.pop();
-        lg.info("Starting to execute job " + nextJob.getName());
+        lg.info("Starting to execute job {}",nextJob.getName());
 
         /* Job is executed simply inside a thread. Unless we need 
            more sophisticaded execution logic, we'll use a  simple 
@@ -48,7 +48,8 @@ public class WorkerScheduler extends CthulhuScheduler {
         Thread t = new Thread(()-> {
                 int result = nextJob.execute();
                 String strResult = result == 0 ? "SUCCESS" : "FAILURE";
-                lg.info("Job execution of job "+nextJob.getName()+" finalized with "+strResult);
+                lg.info("Job execution of job {} finalized with {}",
+                        nextJob.getName(),strResult);
                 finalizeJobExecution(nextJob);
             });
         jobExecutors.put(nextJob.getName(), t);
@@ -56,15 +57,15 @@ public class WorkerScheduler extends CthulhuScheduler {
     }
     void finalizeJobExecution(Job j) {
         try {
-            lg.info("Reporting result of job "+j.getName()+" to coordinator.");
+            lg.info("Reporting result of job {} to coordinator.",j.getName());
             conn.putJob(j, coordinator);
             // After reporting the result of the job, we remove it from the job table
             // TODO: Pick up of job results
             jt.remove(j.getName());
         } catch (Exception e) {
             // TODO: Need a way to deal with failure to contact the coordinator. Should perhaps suicide.
-            lg.error("Unable to report result of job "+j.getName()+
-                     " to coordinator "+coordinator.getId()+": "+e.toString());
+            lg.error("Unable to report result of job {} to coordinator {}: {}",
+                     j.getName(),coordinator.getId(),e.toString());
         }
         jobExecutors.remove(j.getName());
         schedulerTick();
@@ -74,11 +75,11 @@ public class WorkerScheduler extends CthulhuScheduler {
         if(jobExecutors.size() < capacity) executeNextJob();
     }
     void informCoordinator(String workerAddress, int workerPort) {
-        lg.info("Registering worker with coordinator "+coordinator.getId());
+        lg.info("Registering worker with coordinator {}",coordinator.getId());
         try {
             conn.postWorker(coordinator,workerAddress,workerPort);
         } catch (Exception e) {
-            lg.error("Failed to register with coordinator: "+e.toString());
+            lg.error("Failed to register with coordinator: {}",e.toString());
             System.exit(1); // Exiting. Need a coordinator or nothing can be done.
         }
     }

@@ -46,7 +46,7 @@ public class CoordinatorScheduler extends CthulhuScheduler {
     }
     @Override
     protected void updateJobInt(Job job) throws Exception {
-        lg.info("Internal update of job "+job.getName());
+        lg.info("Internal update of job {}",job.getName());
         Worker w = wt.entrySet()
             .stream()
             .filter(entry -> entry.getValue().hasJob(job.getName()))
@@ -67,12 +67,12 @@ public class CoordinatorScheduler extends CthulhuScheduler {
         int jobsDispatched = 0;
         Job nextJob = null;
         if(jq.size() > 0 || freeCapacity > 0) {
-            lg.info("Starting the dispatch of " + Integer.toString(jq.size()) + 
-                    " jobs to " + Integer.toString(freeCapacity) + " spots in "+
-                    Integer.toString(availableWks.size())+ " workers.");
+            lg.info("Starting the dispatch of {} jobs to {} spots in {} workers.",
+                    Integer.toString(jq.size()),Integer.toString(freeCapacity),
+                    Integer.toString(availableWks.size()));
         } else {
-            lg.trace("Unable to dispatch. Jobs waiting: "+ Integer.toString(jq.size()) +
-                     ". Available capacity: "+Integer.toString(freeCapacity));
+            lg.trace("Unable to dispatch. Jobs waiting: {}. Available capacity: {}",
+                     Integer.toString(jq.size()),Integer.toString(freeCapacity));
         }
         while(freeCapacity > 0 && jq.size() > 0) {
             Worker currWorker = availableWks.get(wCount % availableWks.size());
@@ -83,16 +83,16 @@ public class CoordinatorScheduler extends CthulhuScheduler {
 
             // We submit the job
             if(nextJob == null) nextJob = jq.pop();
-            lg.trace("Posting job "+nextJob.getName()+" to worker "+
-                    currWorker.getId()+".");
+            lg.trace("Posting job {} to worker {}.",
+                     nextJob.getName(),currWorker.getId());
             try {
                 currWorker.addJob(nextJob);
                 nextJob.setRunning();
                 conn.postJob(nextJob,currWorker);
                 nextJob = null;
             } catch (Exception e) {
-                lg.warn("Problems posting job "+nextJob.getName()+" to worker "+
-                        currWorker.getId()+": "+e.toString());
+                lg.warn("Problems posting job {} to worker {}: {}",
+                        nextJob.getName(),currWorker.getId(),e.toString());
                 currWorker.removeJob(nextJob.getName());
                 nextJob.setWaiting();
                 freeCapacity -= 1;
@@ -101,6 +101,6 @@ public class CoordinatorScheduler extends CthulhuScheduler {
             freeCapacity -= 1;
             jobsDispatched += 1;
         }
-        lg.info("Dispatched "+jobsDispatched+" jobs");
+        lg.info("Dispatched {} jobs",jobsDispatched);
     }
 }
