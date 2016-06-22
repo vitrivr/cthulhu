@@ -63,6 +63,9 @@ public class CthulhuRESTConnector {
     public void putJob(Job j, Worker w) throws Exception {
         makeRequest(w,"PUT", "/jobs",gson.toJson(j));
     }
+    public void deleteJob(Job j, Worker w,String forceStr) throws Exception {
+        makeRequest(w,"DELETE", "/jobs/"+j.getName(),"force="+forceStr);
+    }
     public void postWorker(Worker coordinator,
                            String workerAddress, int workerPort)  throws Exception {
             String input = "address="+workerAddress+"&port="+workerPort;

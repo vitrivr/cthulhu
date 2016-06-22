@@ -88,13 +88,16 @@ public abstract class CthulhuScheduler {
     }
     public Job deleteJob(String jobId, boolean force) throws Exception {
         Job j = jt.get(jobId);
-        if(j.isRunning() && force == false) {
+        lg.info("Deleting job {} with force = {}",jobId, force == true ? "TRUE" : "FALSE");
+        if(j == null || (j.isRunning() && force == false)) {
+            lg.warn("Can not delete job {}. Job does not exist or is running and force is set to FALSE", jobId);
             throw new Exception("Can not delete job that is running. Wait until it finishes, or use force=True.");
         }
-        if(j.isRunning()) {
-            // Stop the job in the worker.
-        }
+        deleteJobInt(j,force); 
+        // If an exception is thrown, the job is not deleted
         return jt.remove(jobId);
+    }
+    protected void deleteJobInt(Job job, boolean force) throws Exception {
     }
     public Worker deleteWorker(String workerId) {
         return wt.remove(workerId);

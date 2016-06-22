@@ -45,6 +45,9 @@ abstract public class Job implements Comparable<Job>{
     public boolean isRunning() {
         return status == Status.RUNNING;
     }
+    public boolean wasInterrupted() {
+        return status == Status.INTERRUPTED;
+    }
 
     public int getStatus() {
         return status.getValue();

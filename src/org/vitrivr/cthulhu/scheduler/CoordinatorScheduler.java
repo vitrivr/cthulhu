@@ -44,16 +44,39 @@ public class CoordinatorScheduler extends CthulhuScheduler {
         if(dispatchFuture != null) dispatchFuture.cancel(true);
         if(executor != null) executor.shutdown();
     }
-    @Override
-    protected void updateJobInt(Job job) throws Exception {
-        lg.info("Internal update of job {}",job.getName());
+    public Worker getRunningWorker(Job job) {
         Worker w = wt.entrySet()
             .stream()
             .filter(entry -> entry.getValue().hasJob(job.getName()))
             .map(Map.Entry::getValue)
             .findFirst().orElse(null);
+        return w;
+    }
+    @Override
+    protected void updateJobInt(Job job) throws Exception {
+        lg.info("Internal update of job {}",job.getName());
+        Worker w = getRunningWorker(job);
         if(w == null) throw new Exception("Updated job not in any worker yet");
         w.removeJob(job.getName());
+    }
+    @Override
+    protected void deleteJobInt(Job job, boolean force) throws Exception {
+        if(job.isRunning()) {
+            // Stop the job in the worker.
+            Worker w = getRunningWorker(job);
+            if(w == null) {
+                // This should never happen
+                lg.error("Could not find worker executing job {}. This is an error.",job.getName());
+                throw new Exception("Could not find worker executing job "+job.getName()+". This is an error.");
+            }
+            try {
+                conn.deleteJob(job,w,"TRUE");
+            } catch (Exception e) {
+                lg.error("Failed to stop job in the worker: {}",e.toString());
+                throw e;
+                // This should not happen unless the worker became lost or unaccessible.
+            }
+        }
     }
     public void runDispatch() {
         // 1. The first stage of the dispatching cycle is to update jobs that have
