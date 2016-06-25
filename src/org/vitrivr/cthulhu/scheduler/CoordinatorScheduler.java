@@ -21,8 +21,8 @@ import java.util.stream.*;
 import java.util.Properties;
 
 public class CoordinatorScheduler extends CthulhuScheduler {
-    ScheduledExecutorService executor;
-    ScheduledFuture dispatchFuture;
+    transient ScheduledExecutorService executor;
+    transient ScheduledFuture dispatchFuture;
     public CoordinatorScheduler(Properties props) {
         super(props);
         wt = new Hashtable<String,Worker>();
@@ -125,5 +125,7 @@ public class CoordinatorScheduler extends CthulhuScheduler {
             jobsDispatched += 1;
         }
         lg.info("Dispatched {} jobs",jobsDispatched);
+        lg.info("Writing status to disk.");
+        sk.saveStatus(this);
     }
 }
