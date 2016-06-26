@@ -16,11 +16,11 @@ public class JsonKeeper implements StatusKeeper {
     private String outFile;
     public JsonKeeper(Properties prop) {
         this.prop = prop;
-        outFile = prop.getProperty("statusFile",".cthulhuStatus.json");
+        outFile = prop != null ? prop.getProperty("statusFile",".cthulhuStatus.json") : ".cthulhuStatus.json";
         gson = new Gson();
     }
     public void saveStatus(CthulhuScheduler cs) {
-        try (FileWriter writer = new FileWriter(fileName)) {
+        try (FileWriter writer = new FileWriter(outFile)) {
                 gson.toJson(cs, writer);
             } catch (IOException e) {
             /* Ignoring */

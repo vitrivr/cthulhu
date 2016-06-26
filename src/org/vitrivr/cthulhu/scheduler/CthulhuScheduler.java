@@ -14,7 +14,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
-import java.util.Hashtable;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.*;
 
 import java.util.Properties;
@@ -26,15 +27,15 @@ public abstract class CthulhuScheduler {
     transient protected CthulhuRESTConnector conn;
     transient protected JobQueue jq;
     transient private JobFactory jf;
-    protected Hashtable<String,Worker> wt; // Worker table
-    protected Hashtable<String,Job> jt; // Job table
+    protected Map<String,Worker> wt; // Worker table
+    protected Map<String,Job> jt; // Job table
     transient protected Logger lg;
     protected Properties props;
     public CthulhuScheduler(Properties props) {
         sk = new JsonKeeper(props);
         jq = new JobQueue();
         jf = new JobFactory();
-        jt = new Hashtable<String,Job>();
+        jt = new ConcurrentHashMap<String,Job>();
         conn = new CthulhuRESTConnector();
         this.props = props;
         lg = LogManager.getLogger("r.m.ms"); // master.masterscheduler

@@ -15,7 +15,7 @@ import java.util.concurrent.ScheduledFuture;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.*;
 
 import java.util.Properties;
@@ -25,7 +25,7 @@ public class CoordinatorScheduler extends CthulhuScheduler {
     transient ScheduledFuture dispatchFuture;
     public CoordinatorScheduler(Properties props) {
         super(props);
-        wt = new Hashtable<String,Worker>();
+        wt = new ConcurrentHashMap<String,Worker>();
         
         int dispatchDelay = 10;
         if(props != null && props.getProperty("dispatchDelay") != null) {
