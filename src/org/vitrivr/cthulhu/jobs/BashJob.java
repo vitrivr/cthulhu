@@ -61,6 +61,12 @@ public class BashJob extends Job {
         }
     }
 
+    /**
+     * Returns the standard output of a job after it ran
+     */
     public String getStdOut() { return stdOut; }
+    /**
+     * Returns the standard error stream contents of a job after it ran
+     */
     public String getStdErr() { return stdErr; }
 }

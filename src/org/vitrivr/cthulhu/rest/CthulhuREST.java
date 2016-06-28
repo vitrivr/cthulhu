@@ -21,13 +21,22 @@ import org.vitrivr.cthulhu.worker.Worker;
 public class CthulhuREST {
     private CthulhuScheduler ms;
     private Logger LOGGER = LogManager.getLogger("r.m.api");
+    /**
+     * A gson instance to convert to JSON and to Job objects (or others) when exchanging data with another host.
+     */
     private Gson gson;
     private int port;
+    /**
+     * Initializes all the REST services for this agent (worker/coordinator)
+     * <p>
+     * If no port can be determined to listen on, an exception will be thrown
+     *
+     * @param ms This is the scheduler that is in charge of managing microservice REST calls
+     * @param prop This is a properties object with all runtime properties of the agent (worker/coord)
+     */
     public void init(CthulhuScheduler ms, Properties prop) throws Exception {
-        //ms = new MasterScheduler();
         this.ms = ms;
         gson = new Gson();
-
         LOGGER.info("Creating REST paths");
         String sf = prop.getProperty("staticfiles");
         try {
@@ -37,6 +46,11 @@ public class CthulhuREST {
         LOGGER.info("Ready!");
     }
 
+    /**
+     * Stops the REST service.
+     * <p>
+     * Stops the Jetty server that is in charge of running the REST service.
+     */
     public void stopServer() {
         stop();
     }

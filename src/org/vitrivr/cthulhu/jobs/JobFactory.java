@@ -5,15 +5,20 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.Gson;
 
 public class JobFactory {
+    private Gson gson;
+
     /**
      * Builds a job based on a description received in a JSON-formatted string.
+     * <p>
      *
      * Builds a job based on a JSON-formatted description. The job type must be present,
      * or it defaults to bash. Existing job types are:
-     * * Bash script "BASH"
-     * * Feature extraction "FEATURE_EXTRACTION"
+     * * Bash script "BashJob"
+     * * Feature extraction "FeatureExtractionJob"
+     *
+     * @param description The JSON definition of the job. It requires job type, action, name, status, and priority.
+     * @return A Job object created using the JSON definition. If the definition is wrong, an exception will be thrown.
      */
-    private Gson gson;
     public Job buildJob(String description) {
         return gson.fromJson(description,Job.class);
     }

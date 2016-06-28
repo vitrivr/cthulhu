@@ -19,11 +19,21 @@ import java.lang.reflect.Type;
  * Requires Job.type to be equal to its class name.
  */
 final class JobAdapter implements JsonSerializer<Job>, JsonDeserializer<Job> {
+    /**
+     * Serializes the job. Normal Gson behavior.
+     * <p>
+     */
     public JsonElement serialize(Job object, Type interfaceType, JsonSerializationContext context) {
         final JsonObject wrapper = new JsonObject();
         return context.serialize(object).getAsJsonObject(); // Serialize normally - the type is part of the object
     }
 
+    /**
+     * Deserializes a JSON definition of a job. It selects the Class of the object it creates with the type
+     * parameter of the JSON definition.
+     * <p>
+     * It REQUIRES a type parameter in the Job definition.
+     */
     public Job deserialize(JsonElement elem, Type interfaceType, JsonDeserializationContext context) throws JsonParseException {
         final JsonObject wrapper = (JsonObject) elem;
         final JsonElement typeName = get(wrapper, "type");
