@@ -80,7 +80,9 @@ public class CthulhuREST {
         post("/workers", (req, res) -> {
                 String address = req.queryParams("address");
                 int port = Integer.parseInt(req.queryParams("port"));
-                int st = ms.registerWorker(address,req.ip(), port);
+                String ip = req.ip();
+                if(address == null || address.equals("")) address = ip;
+                int st = ms.registerWorker(address, port);
                 if(st != 0) res.status(400);
                 return "";
             });
