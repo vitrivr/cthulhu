@@ -58,7 +58,12 @@ public abstract class CthulhuScheduler {
         return oldJob;
     }
     public Job registerJob(String jobDefinition) {
-        Job job = jf.buildJob(jobDefinition);
+        Job job = null;
+        try {
+            job = jf.buildJob(jobDefinition);
+        } catch (Exception e) {
+            return job;
+        }
         jq.push(job);
         jt.put(job.getName(),job);
         lg.info("Created job {}",job.getName());
