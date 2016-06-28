@@ -61,13 +61,13 @@ public class CthulhuREST {
         staticFileLocation(staticFilesDir);
         get("/jobs/:id", (req, res) -> {
                 String id = req.params(":id");
-                if(id.equals("")) res.status(400);
+                if(id.isEmpty()) res.status(400);
                 return gson.toJson(ms.getJobs(id));
             });
         get("/jobs", (req, res) -> gson.toJson(ms.getJobs()) );
         get("/workers/:id", (req, res) -> {
                 String id = req.params(":id");
-                if(id.equals("")) res.status(400);
+                if(id.isEmpty()) res.status(400);
                 return gson.toJson(ms.getWorkers(id));
             });
         get("/workers", (req, res) -> gson.toJson(ms.getWorkers()) );
@@ -81,7 +81,7 @@ public class CthulhuREST {
                 String address = req.queryParams("address");
                 int port = Integer.parseInt(req.queryParams("port"));
                 String ip = req.ip();
-                if(address == null || address.equals("")) address = ip;
+                if(address == null || address.isEmpty()) address = ip;
                 int st = ms.registerWorker(address, port);
                 if(st != 0) res.status(400);
                 return "";

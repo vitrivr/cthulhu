@@ -70,7 +70,7 @@ public class CoordinatorScheduler extends CthulhuScheduler {
                 throw new Exception("Could not find worker executing job "+job.getName()+". This is an error.");
             }
             try {
-                conn.deleteJob(job,w,"TRUE");
+                conn.deleteJob(job,w,true);
             } catch (Exception e) {
                 lg.error("Failed to stop job in the worker: {}",e.toString());
                 throw e;

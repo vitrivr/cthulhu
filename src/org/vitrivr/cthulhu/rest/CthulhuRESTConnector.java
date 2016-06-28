@@ -53,7 +53,7 @@ public class CthulhuRESTConnector {
             con.setChunkedStreamingMode(0);
             con.setRequestProperty("charset", "utf-8");
             con.setRequestMethod(method);
-            if(body != null && !body.equals("")) {
+            if(body != null && !body.isEmpty()) {
                 byte[] reqData = body.getBytes(StandardCharsets.UTF_8);
                 int contLength = reqData.length;
                 con.setRequestProperty("Content-Length", Integer.toString(contLength));
@@ -121,7 +121,8 @@ public class CthulhuRESTConnector {
      * @param w The object describing the remote host to communicate with.
      * @param j The job to delete in the remote host
      */
-    public void deleteJob(Job j, Worker w,String forceStr) throws Exception {
+    public void deleteJob(Job j, Worker w, boolean force) throws Exception {
+        String forceStr = force ? "TRUE" : "FALSE";
         makeRequest(w,"DELETE", "/jobs/"+j.getName(),"force="+forceStr);
     }
     /**
