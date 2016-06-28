@@ -89,7 +89,7 @@ public class CoordinatorScheduler extends CthulhuScheduler {
         int wCount = 0;
         int jobsDispatched = 0;
         Job nextJob = null;
-        if(jq.size() > 0 || freeCapacity > 0) {
+        if(freeCapacity > 0) {
             lg.info("Starting the dispatch of {} jobs to {} spots in {} workers.",
                     Integer.toString(jq.size()),Integer.toString(freeCapacity),
                     Integer.toString(availableWks.size()));

@@ -33,6 +33,7 @@
                 <li class="pure-menu-item menu-item-divided">
                     <a href="#" id="createJobLink" class="pure-menu-link">Create Job</a>
                 </li>
+                <li class="pure-menu-item"><a id="deleteJobLink" href="#" class="pure-menu-link">Delete job</a></li>
                 <li class="pure-menu-item"><a id="statusLink" href="#" class="pure-menu-link">Status</a></li>
                 <!--<li class="pure-menu-item"><a id="workersLink" href="#" class="pure-menu-link">Workers</a></li>-->
                 <li class="pure-menu-item menu-item-divided">
@@ -71,6 +72,31 @@
           <span id="statusResultSpan"></span>
         </div>
       </div>
+      <div class="content" id="deleteJobLayout">
+        <h2 class="content-subhead">Deleting a Job</h2>
+        <p>
+          Select a job from the drop down menu, ad go ahead and delete it. If the job is runnning, and you try to
+          delete it, there will be a failure uless you use the 'force' parameter.
+        </p>
+        <p>
+          <form id="jobdelform" class="pure-form pure-form-aligned">
+            <!--<fieldset>-->
+            <div class="pure-control-group">
+              <label for="action">Job Name</label>
+              <select name="jobNameSelect" id="jobNameSelect">
+              </select>
+            </div>
+            <div class="pure-controls">
+              <button type="button" id="refreshJobListButton" class="pure-button pure-button-primary">Refresh the job list</button>
+              <button type="button" id="deleteJobButton" class="pure-button pure-button-primary">Delete</button>
+              <button type="button" id="deleteForceButton" class="pure-button pure-button-primary">Delete (FORCE)</button>
+            </div>
+          <!--</fieldset>-->
+          </form>
+        </p>
+      </div>
+    </div>
+  </div>
       <div class="content" id="createJobLayout">
         <h2 class="content-subhead">Job Definition</h2>
         <p>
@@ -123,6 +149,7 @@
   <script src="js/pretty-json-min.js" type="text/javascript"></script>
   <script src="js/main.js" type="text/javascript"></script>
   <script src="js/createJob.js" type="text/javascript"></script>
+  <script src="js/deleteJob.js" type="text/javascript"></script>
   <script src="js/ui.js" type="text/javascript"></script>
   <script src="js/checkStatus.js" type="text/javascript"></script>
 </body>

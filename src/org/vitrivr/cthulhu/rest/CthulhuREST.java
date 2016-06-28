@@ -75,6 +75,7 @@ public class CthulhuREST {
                 String id = req.params(":id");
                 boolean force = false;
                 if(req.queryParams("force") != null) force = Boolean.parseBoolean(req.queryParams("force"));
+                else if(req.params("force") != null) force = Boolean.parseBoolean(req.params("force"));
                 Job job;
                 try {
                     job = ms.deleteJob(id,force);
