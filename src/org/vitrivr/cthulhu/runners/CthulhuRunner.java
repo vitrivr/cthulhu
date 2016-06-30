@@ -72,6 +72,7 @@ public class CthulhuRunner {
         options.addOption("c","capacity",true,"Capacity, or number of jobs that can run simultaneously [for workers]");
         options.addOption("p","port",true,"Port in which to listen to - overrides properties file");
         options.addOption("a","address",true,"Address of the local host (DNS? IP?) - overrides properties file");
+        options.addOption("sf","staticFiles",true,"Directory where the static files will be read from (worker)");
         CommandLine line;
         try {
             line = parser.parse(options,args);
@@ -96,6 +97,10 @@ public class CthulhuRunner {
 
             if(hostAddress == null) line = null; // Host address is unknown. Can't continue.
         }
+        String staticFiles = type == RunnerType.WORKER ? "/workspace" : "/ui"; // Default values for worker:coordinator
+        if(prop.getProperty("staticfiles") != null) staticFiles = prop.getProperty("staticfiles");
+        if(line.hasOption("sf")) staticFiles = line.getOptionValue("sf");
+        prop.setProperty("staticfiles",staticFiles);
         if((line != null && line.hasOption("p")) || prop.getProperty("port") == null) {
             LOGGER.info("Setting up port to listen on");
             String defaultPort = prop.getProperty("port") != null ? prop.getProperty("port") : "8082";
