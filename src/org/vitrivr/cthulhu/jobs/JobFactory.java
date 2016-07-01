@@ -4,6 +4,12 @@ import org.vitrivr.cthulhu.jobs.BashJob;
 import com.google.gson.GsonBuilder;
 import com.google.gson.Gson;
 
+import java.util.List;
+import java.util.ArrayList;
+
+import java.lang.reflect.Type;
+import com.google.gson.reflect.TypeToken;
+
 public class JobFactory {
     private Gson gson;
 
@@ -29,6 +35,10 @@ public class JobFactory {
         default:
             throw new IllegalArgumentException("Invalid job type: "+type);
         }
+    }
+    public List<Job> buildJobs(String description) {
+        Type listType = new TypeToken<ArrayList<Job>>(){}.getType();
+        return gson.fromJson(description,listType);
     }
 
     public JobFactory() {

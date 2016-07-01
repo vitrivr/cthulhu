@@ -4,6 +4,8 @@ import org.vitrivr.cthulhu.jobs.Job;
 
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.stream.*;
 
 public class Worker{ 
     String state;
@@ -22,6 +24,12 @@ public class Worker{
         this.port = port;
         this.capacity = capacity;
         jt = new Hashtable<String,Job>();
+    }
+    public List<Job> getJobs() {
+        return jt.entrySet().stream().map(e->e.getValue()).collect(Collectors.toList());
+    }
+    public Job getJob(String jobName) {
+        return jt.get(jobName);
     }
     public void addJob(Job job) {
         jt.put(job.getName(),job);

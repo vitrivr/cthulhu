@@ -18,7 +18,7 @@ import java.lang.reflect.Type;
  * and their subclasses.
  * Requires Job.type to be equal to its class name.
  */
-final class JobAdapter implements JsonSerializer<Job>, JsonDeserializer<Job> {
+public final class JobAdapter implements JsonSerializer<Job>, JsonDeserializer<Job> {
     /**
      * Serializes the job. Normal Gson behavior.
      * <p>

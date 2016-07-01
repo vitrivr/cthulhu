@@ -2,12 +2,18 @@ package org.vitrivr.cthulhu.runners;
 
 import org.vitrivr.cthulhu.rest.CthulhuREST;
 import org.vitrivr.cthulhu.scheduler.CthulhuScheduler;
+import org.vitrivr.cthulhu.scheduler.CoordinatorScheduler;
 import org.vitrivr.cthulhu.scheduler.SchedulerFactory;
+import org.vitrivr.cthulhu.jobs.JobAdapter;
+import org.vitrivr.cthulhu.jobs.Job;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import org.apache.commons.io.IOUtils;
+
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.DefaultParser;
@@ -73,6 +79,7 @@ public class CthulhuRunner {
         options.addOption("p","port",true,"Port in which to listen to - overrides properties file");
         options.addOption("a","address",true,"Address of the local host (DNS? IP?) - overrides properties file");
         options.addOption("sf","staticFiles",true,"Directory where the static files will be read from (worker)");
+        options.addOption("r","restore",true,"Restore instance from status file");
         CommandLine line;
         try {
             line = parser.parse(options,args);
@@ -96,6 +103,9 @@ public class CthulhuRunner {
             prop.setProperty("hostPort",hostPort);
 
             if(hostAddress == null) line = null; // Host address is unknown. Can't continue.
+        }
+        if(line.hasOption("r")) {
+            prop.setProperty("restoreFile",line.getOptionValue("r"));
         }
         String staticFiles = type == RunnerType.WORKER ? "/workspace" : "/ui"; // Default values for worker:coordinator
         if(prop.getProperty("staticfiles") != null) staticFiles = prop.getProperty("staticfiles");
@@ -121,6 +131,25 @@ public class CthulhuRunner {
         return line;
     }
 
+    public static void restoreRun(Properties prop) throws Exception {
+        Gson restoreGson = new GsonBuilder()
+            .registerTypeAdapter(Job.class, new JobAdapter())
+            .create();
+        String jsonFile = prop.getProperty("restoreFile");
+        String jsonContents;
+        try {
+            InputStream is = new FileInputStream(jsonFile);
+            jsonContents = IOUtils.toString(is,"UTF-8");
+        } catch (Exception e) {
+            LOGGER.error("Unable to restore from file {}. Exception: {}",jsonFile,e.toString());
+            throw e;
+        }
+        CthulhuScheduler rs = restoreGson.fromJson(jsonContents, CoordinatorScheduler.class);
+        System.out.println(restoreGson.toJson(rs));
+        rs.restoreStatus();
+        ms = rs;
+    }
+
     public static void main(String[] args) throws Exception {
         LOGGER.info("Loading properties");
         Properties prop = new Properties();
@@ -138,9 +167,14 @@ public class CthulhuRunner {
             LOGGER.info("Starting up");
             APICLIThread cli = new APICLIThread();
             cli.start();
-
-            SchedulerFactory sf = new SchedulerFactory();
-            ms = sf.createScheduler(type, prop); // Update later
+            if(prop.getProperty("restoreFile") != null) {
+                restoreRun(prop);
+                prop = ms.getProperties();
+            } else {
+                SchedulerFactory sf = new SchedulerFactory();
+                ms = sf.createScheduler(type, prop); // Update later
+            }
+            ms.init();
             api = new CthulhuREST();
             api.init(ms,prop);
         } catch (Exception e) {

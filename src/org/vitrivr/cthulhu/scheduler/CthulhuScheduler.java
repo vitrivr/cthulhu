@@ -27,7 +27,7 @@ public abstract class CthulhuScheduler {
     transient protected CthulhuRESTConnector conn;
     transient protected JobQueue jq;
     transient protected Logger lg;
-    transient private JobFactory jf;
+    transient protected JobFactory jf;
     /**
      * The worker table. It's a hash table of workers, mapped by their address:port string.
      */
@@ -210,10 +210,15 @@ public abstract class CthulhuScheduler {
     public Worker deleteWorker(String workerId) {
         return wt.remove(workerId);
     }
+
+    public void restoreStatus() {
+    }
+    public Properties getProperties() { return props; }
     protected void updateJobInt(Job job) throws Exception {
     }
     protected void schedulerTick() {
     }
     public void stop() {
     }
+    public void init(){}
 }
