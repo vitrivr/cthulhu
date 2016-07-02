@@ -27,6 +27,9 @@ public class CoordinatorScheduler extends CthulhuScheduler {
     transient ScheduledFuture dispatchFuture;
     int dispatchDelay = 10;
 
+    protected CoordinatorScheduler() {
+        this(null);
+    }
     public CoordinatorScheduler(Properties props) {
         super(props);
         wt = new ConcurrentHashMap<String,Worker>();
@@ -100,7 +103,7 @@ public class CoordinatorScheduler extends CthulhuScheduler {
                         lg.info("Worker {} has been found. It reported {} jobs.",entry.getKey(), wjobs.size());
                         recoveredJobs.put(entry.getKey(),wjobs);
                     } catch (Exception e) {
-                        lg.info("Worker {} has been lost.",entry.getKey());
+                        lg.info("Worker {} has been lost ({}).",entry.getKey(), e.toString());
                         goneWorkers.add(entry.getKey());
                         return false;
                     }
@@ -113,6 +116,8 @@ public class CoordinatorScheduler extends CthulhuScheduler {
                 Worker w = wt.get(wid);
                 // All the jobs in w are set to waiting
                 w.getJobs().stream().forEach(j->{ jt.get(j.getName()).setWaiting(); });
+                // Remove the worker from the worker table
+                wt.remove(wid);
             });
 
         // 3. Now we need to update the job status of jobs from recovered workers
@@ -124,7 +129,8 @@ public class CoordinatorScheduler extends CthulhuScheduler {
                         // we need only replace it on the job hash map
                         if(j.getStatus() == Job.Status.SUCCEEDED.getValue() || 
                            j.getStatus() == Job.Status.FAILED.getValue() || 
-                           j.getStatus() == Job.Status.INTERRUPTED.getValue()) {
+                           j.getStatus() == Job.Status.INTERRUPTED.getValue() ||
+                           j.getStatus() == Job.Status.UNEXPECTED_ERROR.getValue()) {
                             jt.put(j.getName(),j);
                             // We mark it as removed from the worker (because it's done)
                             w.removeJob(j.getName());

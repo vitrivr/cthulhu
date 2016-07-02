@@ -1,0 +1,20 @@
+[{
+  "type": "BashJob",
+  "name": "pabs",
+  "action": "sleep 100 ; echo hi",
+  "status": "RUNNING",
+  "created_at": {
+    "date": {
+      "year": 2016,
+      "month": 7,
+      "day": 2
+    },
+    "time": {
+      "hour": 13,
+      "minute": 6,
+      "second": 37,
+      "nano": 3.69e+08
+    }
+  },
+  "priority": 4
+}]

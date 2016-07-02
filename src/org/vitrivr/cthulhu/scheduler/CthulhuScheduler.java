@@ -40,6 +40,9 @@ public abstract class CthulhuScheduler {
      * Runtime properties of this agent
      */
     protected Properties props;
+    public CthulhuScheduler() {
+        this(null);
+    }
     public CthulhuScheduler(Properties props) {
         sk = new JsonKeeper(props);
         jq = new JobQueue();
@@ -212,6 +215,9 @@ public abstract class CthulhuScheduler {
     }
 
     public void restoreStatus() {
+    }
+    protected void setConn(CthulhuRESTConnector conn) {
+        this.conn = conn;
     }
     public Properties getProperties() { return props; }
     protected void updateJobInt(Job job) throws Exception {

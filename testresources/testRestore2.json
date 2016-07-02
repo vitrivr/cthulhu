@@ -1,0 +1,59 @@
+{
+  "props": {
+    "port": "8082",
+    "staticfiles": "/ui",
+    "address": "147.46.117.72"
+  },
+  "jt": {
+    "pabs": {
+      "priority": 6,
+      "created_at": {
+        "time": {
+          "nano": 7.99e+08,
+          "second": 13,
+          "minute": 24,
+          "hour": 12
+        },
+        "date": {
+          "day": 2,
+          "month": 7,
+          "year": 2016
+        }
+      },
+      "status": "RUNNING",
+      "action": "echo hi ; sleep 100",
+      "name": "pabs",
+      "type": "BashJob"
+    }
+  },
+  "wt": {
+    "147.46.117.72:8081": {
+      "jt": {
+        "pabs": {
+          "priority": 6,
+          "created_at": {
+            "time": {
+              "nano": 7.99e+08,
+              "second": 13,
+              "minute": 24,
+              "hour": 12
+            },
+            "date": {
+              "day": 2,
+              "month": 7,
+              "year": 2016
+            }
+          },
+          "status": "RUNNING",
+          "action": "echo hi ; sleep 100",
+          "name": "pabs",
+          "type": "BashJob"
+        }
+      },
+      "capacity": 1,
+      "port": 8081,
+      "address": "147.46.117.72"
+    }
+  },
+  "dispatchDelay": 10
+}

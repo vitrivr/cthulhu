@@ -1,0 +1,20 @@
+[{
+  "priority": 6,
+  "created_at": {
+    "time": {
+      "nano": 7.99e+08,
+      "second": 13,
+      "minute": 24,
+      "hour": 12
+    },
+    "date": {
+      "day": 2,
+      "month": 7,
+      "year": 2016
+    }
+  },
+  "status": "INTERRUPTED",
+  "action": "echo hi ; sleep 100",
+  "name": "pabs",
+  "type": "BashJob"
+}]

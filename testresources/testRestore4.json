@@ -1,0 +1,126 @@
+{
+  "props": {
+    "port": "8082",
+    "staticfiles": "/ui",
+    "address": "147.46.117.72"
+  },
+  "jt": {
+    "pabs1": {
+      "priority": 4,
+      "created_at": {
+        "time": {
+          "nano": 6.62e+08,
+          "second": 44,
+          "minute": 6,
+          "hour": 13
+        },
+        "date": {
+          "day": 2,
+          "month": 7,
+          "year": 2016
+        }
+      },
+      "status": "WAITING",
+      "action": "sleep 100 ; echo hi",
+      "name": "pabs1",
+      "type": "BashJob"
+    },
+    "pabs2": {
+      "priority": 4,
+      "created_at": {
+        "time": {
+          "nano": 5.54e+08,
+          "second": 52,
+          "minute": 6,
+          "hour": 13
+        },
+        "date": {
+          "day": 2,
+          "month": 7,
+          "year": 2016
+        }
+      },
+      "status": "RUNNING",
+      "action": "sleep 100 ; echo hi",
+      "name": "pabs2",
+      "type": "BashJob"
+    },
+    "pabs": {
+      "priority": 4,
+      "created_at": {
+        "time": {
+          "nano": 3.69e+08,
+          "second": 37,
+          "minute": 6,
+          "hour": 13
+        },
+        "date": {
+          "day": 2,
+          "month": 7,
+          "year": 2016
+        }
+      },
+      "status": "RUNNING",
+      "action": "sleep 100 ; echo hi",
+      "name": "pabs",
+      "type": "BashJob"
+    }
+  },
+  "wt": {
+    "147.46.117.72:8081": {
+      "jt": {
+        "pabs": {
+          "priority": 4,
+          "created_at": {
+            "time": {
+              "nano": 3.69e+08,
+              "second": 37,
+              "minute": 6,
+              "hour": 13
+            },
+            "date": {
+              "day": 2,
+              "month": 7,
+              "year": 2016
+            }
+          },
+          "status": "RUNNING",
+          "action": "sleep 100 ; echo hi",
+          "name": "pabs",
+          "type": "BashJob"
+        }
+      },
+      "capacity": 1,
+      "port": 8081,
+      "address": "147.46.117.72"
+    },
+    "147.46.117.72:8083": {
+      "jt": {
+        "pabs2": {
+          "priority": 4,
+          "created_at": {
+            "time": {
+              "nano": 5.54e+08,
+              "second": 52,
+              "minute": 6,
+              "hour": 13
+            },
+            "date": {
+              "day": 2,
+              "month": 7,
+              "year": 2016
+            }
+          },
+          "status": "RUNNING",
+          "action": "sleep 100 ; echo hi",
+          "name": "pabs2",
+          "type": "BashJob"
+        }
+      },
+      "capacity": 1,
+      "port": 8083,
+      "address": "147.46.117.72"
+    }
+  },
+  "dispatchDelay": 10
+}

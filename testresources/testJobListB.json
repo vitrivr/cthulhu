@@ -1,0 +1,40 @@
+[{
+    "priority": 2,
+    "created_at": {
+      "time": {
+        "nano": 5.97e+08,
+        "second": 22,
+        "minute": 21,
+        "hour": 9
+      },
+      "date": {
+        "day": 1,
+        "month": 7,
+        "year": 2016
+      }
+    },
+    "status": "FAILED",
+    "action": "echo oasfa\nsleep 10\necho pablio",
+    "name": "oasfa",
+    "type": "BashJob"
+  },{
+    "priority": 5,
+    "created_at": {
+      "time": {
+        "nano": 9.1e+07,
+        "second": 35,
+        "minute": 20,
+        "hour": 9
+      },
+      "date": {
+        "day": 1,
+        "month": 7,
+        "year": 2016
+      }
+    },
+    "status": "SUCCEEDED",
+    "action": "echo oasf ; sleep 10",
+    "name": "oasf",
+    "type": "BashJob"
+  }
+]

@@ -123,6 +123,16 @@ abstract public class Job implements Comparable<Job>{
     }
 
     /**
+     * Returns whether the job is waiting to run.
+     * <p>
+     *
+     * @return true if the job status is WAITING, false otherwise
+     */
+    public boolean isWaiting() {
+        return this.status == Status.WAITING;
+    }
+
+    /**
      * Modifies the priority of the job
      * <p>
      *
