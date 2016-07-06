@@ -12,11 +12,14 @@ import org.apache.logging.log4j.Logger;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ScheduledFuture;
 
 import java.lang.InterruptedException;
 
 import java.util.List;
-import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.*;
 
 import java.util.Properties;
@@ -24,13 +27,17 @@ import java.util.Properties;
 public class WorkerScheduler extends CthulhuScheduler {
     Worker coordinator;
     int capacity = 1; // Default capacity - to be changed later
-    Hashtable<String,Thread> jobExecutors; // List of job executors
+    Map<String,Thread> jobExecutors; // List of job executors
+    LinkedList<Job> doneJobQueue;
+    ScheduledFuture coordinatorPoller = null;
+
     public WorkerScheduler(Properties props) {
         this(props,false);
     }
     public WorkerScheduler(Properties props, boolean standAlone) {
         super(props);
-        jobExecutors = new Hashtable<String,Thread>();
+        jobExecutors = new ConcurrentHashMap<String,Thread>();
+        doneJobQueue = new LinkedList<Job>();
         if(!standAlone) {
             coordinator = new Worker(props != null ? props.getProperty("hostAddress") : "127.0.0.1",
                                      props != null ? Integer.parseInt(props.getProperty("hostPort")) : 8082);
@@ -38,7 +45,37 @@ public class WorkerScheduler extends CthulhuScheduler {
             informCoordinator(props != null ? props.getProperty("address") : "127.0.0.1", port);
         }
     }
-    /*
+
+    /**
+     * Stops the periodic polling of the coordinator 
+     * <p>
+     */
+    void stopWaitingForCoord() {
+        if(coordinatorPoller != null) coordinatorPoller.cancel(false);
+        coordinatorPoller = null;
+    }
+
+    /**
+     * Polls for the coordinator until it comes back, or the worker is terminated.
+     * <p>
+     */
+    void waitForCoord() {
+        lg.info("Starting the polling for the coordinator");
+        int pollDelay = 10;
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        coordinatorPoller = executor.scheduleAtFixedRate(()->{
+                try { 
+                    returnFinalizedJobs();
+                } catch (Exception e) {
+                    lg.warn("Coordinator still not available");
+                    return ;
+                }
+                lg.info("Coordinator has been recovered!");
+                schedulerTick();
+                stopWaitingForCoord();
+            }, pollDelay, pollDelay, TimeUnit.SECONDS);
+    }
+    /**
      * This function assumes that all the checks have been done, and it is
      * safe to run a job in a new thread. (i.e. assumes that the capacity allows
      * to run one more job).
@@ -63,22 +100,33 @@ public class WorkerScheduler extends CthulhuScheduler {
         jobExecutors.put(nextJob.getName(), t);
         t.start();
     }
-    void finalizeJobExecution(Job j) {
-        // TODO THIS MUST EXECUTE EVEN IF THE JOB WAS DELETED AND STOPPED.
-        try {
-            lg.info("Reporting result of job {} to coordinator.",j.getName());
+    void returnFinalizedJobs() throws Exception {
+        while(doneJobQueue.size() > 0) {
+            Job j = doneJobQueue.poll();
+            if(j == null) continue; // This should never happen
             if(coordinator != null) conn.putJob(j, coordinator);
             // After reporting the result of the job, we remove it from the job table
             // TODO: Pick up of job results
             jt.remove(j.getName());
+            if(jobExecutors.containsKey(j.getName())) jobExecutors.remove(j.getName());
+        }
+    }
+    void finalizeJobExecution(Job j) {
+        // TODO THIS MUST EXECUTE EVEN IF THE JOB WAS DELETED AND STOPPED.
+        try {
+            lg.info("Reporting result of job {} to coordinator.",j.getName());
+            doneJobQueue.add(j);
+            returnFinalizedJobs();
         } catch (Exception e) {
-            // TODO: Need a way to deal with failure to contact the coordinator. Should perhaps suicide.
             lg.error("Unable to report result of job {} to coordinator {}: {}",
                      j.getName(),
                      coordinator != null ? coordinator.getId() : "STANDALONE",
                      e.toString());
+            // In this case, we return without the next schedulerTick,
+            // if we recover the coordinator, then waitForCoord will execute it.
+            waitForCoord();
+            return ;
         }
-        jobExecutors.remove(j.getName());
         schedulerTick();
     }
     @Override
