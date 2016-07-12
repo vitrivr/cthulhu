@@ -3,6 +3,7 @@ package org.vitrivr.cthulhu.scheduler;
 import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.jobs.JobFactory;
 import org.vitrivr.cthulhu.jobs.JobQueue;
+import org.vitrivr.cthulhu.jobs.JobTools;
 import org.vitrivr.cthulhu.worker.Worker;
 
 import org.vitrivr.cthulhu.keeper.StatusKeeper;
@@ -27,6 +28,7 @@ public abstract class CthulhuScheduler {
     transient protected CthulhuRESTConnector conn;
     transient protected JobQueue jq;
     transient protected Logger lg;
+    transient protected JobTools jobTools;
     transient protected JobFactory jf;
     /**
      * The worker table. It's a hash table of workers, mapped by their address:port string.
@@ -51,6 +53,8 @@ public abstract class CthulhuScheduler {
         conn = new CthulhuRESTConnector();
         this.props = props;
         lg = LogManager.getLogger("r.m.ms"); // master.masterscheduler
+        jobTools = new JobTools(props, conn);
+        jf.setTools(jobTools);
     }
     /**
      * Updates a job with a new definition

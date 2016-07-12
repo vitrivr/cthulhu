@@ -20,10 +20,13 @@ abstract public class Job implements Comparable<Job>{
         }
         public int getValue() { return value; }
     }
-
+    transient JobTools tools;
     String type;
     String name;
     String action;
+    protected void setTools(JobTools tools) {
+        this.tools = tools;
+    }
     /**
      * Documents the status of the job. Possible statuses are:
      * <b>SUCCEEDED, FAILED, WAITING, INTERRUPTED, UNEXPECTED_ERROR, RUNNING</b>;

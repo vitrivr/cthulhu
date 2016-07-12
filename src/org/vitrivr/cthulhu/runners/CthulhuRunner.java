@@ -109,6 +109,8 @@ public class CthulhuRunner {
         }
         String staticFiles = type == RunnerType.WORKER ? "/workspace" : "/ui"; // Default values for worker:coordinator
         if(prop.getProperty("staticfiles") != null) staticFiles = prop.getProperty("staticfiles");
+
+        if(prop.getProperty("workspace") == null) prop.setProperty("workspace", "/workspace");
         if(line.hasOption("sf")) staticFiles = line.getOptionValue("sf");
         prop.setProperty("staticfiles",staticFiles);
         if((line != null && line.hasOption("p")) || prop.getProperty("port") == null) {

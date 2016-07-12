@@ -139,4 +139,27 @@ public class CthulhuRESTConnector {
             String input = "address="+workerAddress+"&port="+workerPort;
             makeRequest(coordinator, "POST", "/workers", input);
     }
+
+    public InputStream getFile(Worker host, String fileName) throws Exception {
+        InputStream in = null;
+        try {
+            URL workerUrl = new URL("GET", host.getAddress(), host.getPort(), fileName);
+            HttpURLConnection con = (HttpURLConnection) workerUrl.openConnection();
+            con.setDoOutput(true);
+            con.setChunkedStreamingMode(0);
+            con.setRequestProperty("charset", "utf-8");
+            con.setRequestMethod("GET");
+            in = con.getInputStream();
+
+            if (con.getResponseCode() != HttpURLConnection.HTTP_CREATED &&
+                con.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                                           + con.getResponseCode());
+            }
+            con.disconnect();
+        } catch (Exception e) {
+            throw e;
+        }
+        return in;
+    }
 }

@@ -12,6 +12,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class JobFactory {
     private Gson gson;
+    private JobTools tools = null;
 
     /**
      * Builds a job based on a description received in a JSON-formatted string.
@@ -26,21 +27,31 @@ public class JobFactory {
      * @return A Job object created using the JSON definition. If the definition is wrong, an exception will be thrown.
      */
     public Job buildJob(String description) {
-        return gson.fromJson(description,Job.class);
+        Job jb = gson.fromJson(description,Job.class);
+        if(tools != null) jb.setTools(tools);
+        return jb;
     }
     public Job buildJob(String description, String type, int priority) {
+        Job jb = null;
         switch (type) {
         case "BashJob":
-            return new BashJob(description,priority);
+            jb = new BashJob(description,priority);
+            break;
         default:
             throw new IllegalArgumentException("Invalid job type: "+type);
         }
+        if(tools != null) jb.setTools(tools);
+        return jb;
     }
     public List<Job> buildJobs(String description) {
         Type listType = new TypeToken<ArrayList<Job>>(){}.getType();
-        return gson.fromJson(description,listType);
+        List<Job> jobs = gson.fromJson(description,listType);
+        if(tools != null) jobs.stream().forEach(j-> j.setTools(tools));
+        return jobs;
     }
-
+    public void setTools(JobTools tools) {
+        this.tools = tools;
+    }
     public JobFactory() {
         Gson gson = new GsonBuilder()
             .registerTypeAdapter(Job.class, new JobAdapter())

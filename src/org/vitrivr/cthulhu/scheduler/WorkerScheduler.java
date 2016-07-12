@@ -3,6 +3,7 @@ package org.vitrivr.cthulhu.scheduler;
 import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.jobs.JobFactory;
 import org.vitrivr.cthulhu.jobs.JobQueue;
+import org.vitrivr.cthulhu.jobs.JobTools;
 
 import org.vitrivr.cthulhu.worker.Worker;
 
@@ -43,6 +44,8 @@ public class WorkerScheduler extends CthulhuScheduler {
                                      props != null ? Integer.parseInt(props.getProperty("hostPort")) : 8082);
             int port = Integer.parseInt(props != null ? props.getProperty("port") : "8081");
             informCoordinator(props != null ? props.getProperty("address") : "127.0.0.1", port);
+            jobTools = new JobTools(props, conn, coordinator); // Resetting the job tools
+            jf.setTools(jobTools);
         }
     }
 

@@ -2,7 +2,10 @@
 Distributed job-scheduler for feature extraction.
 
 ## Running the Cthulhu Scheduler
-            
+The Cthulhu runner should also have access to a properties file with some basic configuration options. Specially,
+the properties file must contain a `workspace` property which is a directory that can be manipulated by the Cthulhu
+process (or it will default to /workspace, next to /ui).
+
 ```
 java -jar build/libs/cthulhu.jar --help
 usage: Cthulhu [-a <arg>] [-C] [-c <arg>] [-h] [-ha <arg>] [-hp <arg>] [-p
