@@ -67,7 +67,7 @@ public class CthulhuRunner {
         return "127.0.0.1"; // If no IP was found earlier, just return loopback interface
     }
 
-    static CommandLine populateProperties(String[] args, Properties prop) throws Exception {
+    public static CommandLine populateProperties(String[] args, Properties prop) throws Exception {
         CommandLineParser parser = new DefaultParser();
         Options options = new Options();
         options.addOption("h","help",false,"Display help menu");
