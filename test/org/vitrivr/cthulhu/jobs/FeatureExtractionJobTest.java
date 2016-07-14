@@ -17,7 +17,7 @@ import com.google.gson.*;
 
 public class FeatureExtractionJobTest {
     static JobFactory jf;
-
+    static JobTools jt;
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         Properties props = new Properties();
@@ -31,9 +31,9 @@ public class FeatureExtractionJobTest {
         //PrintWriter writr = new PrintWriter(System.out);
         //props.list(writr);
         //writr.flush();
-        JobTools jbt = new JobTools(props, null);
+        jt = new JobTools(props, null);
         jf = new JobFactory();
-        jf.setTools(jbt);
+        jf.setTools(jt);
     }
 
     @AfterClass
@@ -41,6 +41,10 @@ public class FeatureExtractionJobTest {
     }
 
     @Test
-    public void make() {
+    public void makeDirectory() {
+        // Create job, with working directory, and then delete them
+        String json = "{\"type\":\"FeatureExtractionJob\",\"priority\":3, \"name\":\"fetujob\", \"immediate_cleanup\":true}";
+        Job jb = jf.buildJob(json);
+        jb.execute();
     }
 }

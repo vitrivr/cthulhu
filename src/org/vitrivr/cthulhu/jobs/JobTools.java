@@ -10,6 +10,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.net.URL;
+import java.lang.ClassLoader;
 
 public class JobTools {
     CthulhuRESTConnector conn;
@@ -25,9 +29,20 @@ public class JobTools {
         this(props,conn);
         this.coord = coord;
     }
-    
+    public void delete(File f) throws IOException {
+        if (f.isDirectory()) {
+            for (File c : f.listFiles())
+                delete(c);
+        }
+        if (!f.delete())
+            throw new FileNotFoundException("Failed to delete file: " + f);
+    }
     public String setWorkingDirectory(Job j) {
         String workspaceDir = props.getProperty("workspace");
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        URL url = classLoader.getResource(workspaceDir);
+        workspaceDir = url.getFile();
+
         File dir = null;
         int tryCount = 0;
         String suffix = "";
