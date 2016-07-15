@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import com.google.gson.Gson;
 
@@ -140,25 +142,13 @@ public class CthulhuRESTConnector {
             makeRequest(coordinator, "POST", "/workers", input);
     }
 
-    public InputStream getFile(Worker host, String fileName) throws Exception {
+    public InputStream getFile(Worker host, String remoteFile, File localFile) throws Exception {
         InputStream in = null;
         try {
-            URL workerUrl = new URL("GET", host.getAddress(), host.getPort(), fileName);
-            HttpURLConnection con = (HttpURLConnection) workerUrl.openConnection();
-            con.setDoOutput(true);
-            con.setChunkedStreamingMode(0);
-            con.setRequestProperty("charset", "utf-8");
-            con.setRequestMethod("GET");
-            in = con.getInputStream();
-
-            if (con.getResponseCode() != HttpURLConnection.HTTP_CREATED &&
-                con.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                                           + con.getResponseCode());
-            }
-            con.disconnect();
-        } catch (Exception e) {
-            throw e;
+            URL workerUrl = new URL("GET", host.getAddress(), host.getPort(), remoteFile);
+            FileUtils.copyURLToFile(workerUrl, localFile);
+        } catch (IOException io) {
+            throw io;
         }
         return in;
     }

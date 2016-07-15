@@ -29,15 +29,27 @@ public class JobTools {
         this(props,conn);
         this.coord = coord;
     }
-    public void delete(File f) throws IOException {
+    public int delete(File f) throws IOException {
         if (f.isDirectory()) {
             for (File c : f.listFiles())
                 delete(c);
         }
         if (!f.delete())
             throw new FileNotFoundException("Failed to delete file: " + f);
+        return 0;
     }
     public int getFile(String filename, String workingDir) {
+        File wdFl = new File(workingDir);
+        File prseFname = new File(filename);
+        File localFile = new File(wdFl, prseFname.getName());
+        if(localFile.exists()) {
+            // We have a problem: The file exists. What do we do?
+        }
+        try {
+            conn.getFile(coord, filename, localFile);
+        } catch (Exception e) {
+            return 1; // Error
+        }
         return 0;
     }
     public String setWorkingDirectory(Job j) {
