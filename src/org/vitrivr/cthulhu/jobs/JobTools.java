@@ -37,6 +37,9 @@ public class JobTools {
         if (!f.delete())
             throw new FileNotFoundException("Failed to delete file: " + f);
     }
+    public int getFile(String filename, String workingDir) {
+        return 0;
+    }
     public String setWorkingDirectory(Job j) {
         String workspaceDir = props.getProperty("workspace");
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

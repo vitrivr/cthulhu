@@ -10,10 +10,14 @@ import java.util.Properties;
 import java.io.PrintWriter;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.Reader;
 
 import org.vitrivr.cthulhu.runners.CthulhuRunner;
 
 import com.google.gson.*;
+import static org.mockito.Mockito.*;
 
 public class FeatureExtractionJobTest {
     static JobFactory jf;
@@ -46,5 +50,32 @@ public class FeatureExtractionJobTest {
         String json = "{\"type\":\"FeatureExtractionJob\",\"priority\":3, \"name\":\"fetujob\", \"immediate_cleanup\":true}";
         Job jb = jf.buildJob(json);
         jb.execute();
+    }
+    
+    @Test
+    public void makeConfigFile() throws Exception {
+        JobTools mockTools = spy(jt);
+        when(mockTools.getFile(any(), any())).thenReturn(0);
+        String json = "{\"type\":\"FeatureExtractionJob\",\"priority\":3, \"name\":\"configjob\"," +
+                           "\"config\":{\"database\":\"somedbase\", \"retriever\":\"aretriever\", " +
+                           "\"features\":[\"feat1\", \"feat3\"], " +
+                           "\"input\":{ \"id\":\"vidioid\", \"file\":\"file.avi\", \"name\":\"crazy vid\", " +
+                           " \"subtitles\": [\"subtitle1\", \"subtitle4\"]}}}";
+        FeatureExtractionJob jb = (FeatureExtractionJob) jf.buildJob(json);
+        jb.setTools(jt);
+        jb.execute();
+        Gson gson = new Gson();
+        String conFile = jb.workDir+"/"+jb.getName()+"_config.json";
+        Reader fr = new FileReader(conFile);
+        CineastConfig cc = gson.fromJson(fr, CineastConfig.class);
+        assertEquals(cc.database, "somedbase");
+        assertEquals(cc.retriever, "aretriever");
+        assertEquals(cc.features.get(0), "feat1");
+        assertEquals(cc.features.get(1), "feat3");
+        assertEquals(cc.input.id, "vidioid");
+        assertEquals(cc.input.file, "file.avi");
+        assertEquals(cc.input.subtitles.get(0), "subtitle1");
+        assertEquals(cc.input.subtitles.get(1), "subtitle4");
+        jb.deleteWorkingDirectory();
     }
 }
