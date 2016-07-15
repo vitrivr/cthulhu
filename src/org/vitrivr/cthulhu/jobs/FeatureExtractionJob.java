@@ -54,7 +54,9 @@ public class FeatureExtractionJob extends Job {
         Set<String> dirFiles = new HashSet<String>(Arrays.asList(wdf.list()));
         if(!dirFiles.contains(inpStr)) tools.getFile(config.input.file, workingDir);
         config.input.subtitles.stream().forEach(s-> {
-                if(!dirFiles.contains(s)) tools.getFile(s, workingDir);
+                File subf = new File(s);
+                String fnme = subf.getName();
+                if(!dirFiles.contains(fnme)) tools.getFile(s, workingDir);
             });
     }
     private String generateConfigFile(String workingDir) {
