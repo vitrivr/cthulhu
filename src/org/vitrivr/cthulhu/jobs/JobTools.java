@@ -29,16 +29,19 @@ public class JobTools {
         this(props,conn);
         this.coord = coord;
     }
-    public int delete(File f) throws IOException {
+    public String getCineastLocation() {
+        return props.getProperty("cineast_dir");
+    }
+    public boolean delete(File f) throws IOException {
         if (f.isDirectory()) {
             for (File c : f.listFiles())
                 delete(c);
         }
         if (!f.delete())
             throw new FileNotFoundException("Failed to delete file: " + f);
-        return 0;
+        return true;
     }
-    public int getFile(String filename, String workingDir) {
+    public boolean getFile(String filename, String workingDir) {
         File wdFl = new File(workingDir);
         File prseFname = new File(filename);
         File localFile = new File(wdFl, prseFname.getName());
@@ -48,9 +51,9 @@ public class JobTools {
         try {
             conn.getFile(coord, filename, localFile);
         } catch (Exception e) {
-            return 1; // Error
+            return false; // Error
         }
-        return 0;
+        return true;
     }
     public String setWorkingDirectory(Job j) {
         String workspaceDir = props.getProperty("workspace");

@@ -10,6 +10,8 @@ import java.io.Writer;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import java.lang.Process;
+
 import com.google.gson.GsonBuilder;
 import com.google.gson.Gson;
 
@@ -68,9 +70,16 @@ public class FeatureExtractionJob extends Job {
             writer.close();
         } catch (IOException io) {
         }
-        return "";
+        return confileName;
     }
     private void executeCineast(String cfile) {
+        String cineastDir = tools.getCineastLocation();
+        if(cineastDir == null || cineastDir.isEmpty()) return ;
+        try {
+            Process p = Runtime.getRuntime().exec("java -jar "+cineastDir);
+        } catch (Exception e) {
+            // Now what?
+        }
     }
 }
 

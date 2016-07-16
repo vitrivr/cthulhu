@@ -55,7 +55,7 @@ public class FeatureExtractionJobTest {
     @Test
     public void makeConfigFile() throws Exception {
         JobTools mockTools = mock(JobTools.class);
-        when(mockTools.getFile(any(), any())).thenReturn(0);
+        when(mockTools.getFile(any(), any())).thenReturn(true);
         when(mockTools.delete(any())).thenCallRealMethod();
         when(mockTools.setWorkingDirectory(any())).thenCallRealMethod();
         String json = "{\"type\":\"FeatureExtractionJob\",\"priority\":3, \"name\":\"configjob\"," +
