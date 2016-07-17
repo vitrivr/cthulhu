@@ -14,6 +14,8 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.Reader;
 
+import org.apache.commons.io.IOUtils;
+
 import org.vitrivr.cthulhu.runners.CthulhuRunner;
 
 import com.google.gson.*;
@@ -42,6 +44,19 @@ public class FeatureExtractionJobTest {
 
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
+    }
+
+    private String readWholeFile(String jsonFile) throws Exception {
+        String jsonRestore;
+        try {
+            InputStream is = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream(jsonFile);
+            jsonRestore = IOUtils.toString(is,"UTF-8");
+        } catch (Exception e) {
+            System.out.println("Unable to restore from file "+jsonFile+". Exception: "+e.toString());
+            throw e;
+        }
+        return jsonRestore;
     }
 
     @Test
@@ -79,5 +94,12 @@ public class FeatureExtractionJobTest {
         assertEquals(cc.input.subtitles.get(0), "subtitle1");
         assertEquals(cc.input.subtitles.get(1), "subtitle4");
         jb.deleteWorkingDirectory();
+    }
+
+    @Test
+    public void withValidConfFile() throws Exception {
+        String json = readWholeFile("full_fe_job.json");
+        FeatureExtractionJob jb = (FeatureExtractionJob) jf.buildJob(json);
+        jb.execute();
     }
 }
