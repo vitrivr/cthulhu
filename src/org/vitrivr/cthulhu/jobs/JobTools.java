@@ -32,6 +32,9 @@ public class JobTools {
     public String getCineastLocation() {
         return props.getProperty("cineast_dir");
     }
+    public String getJavaFlags() {
+        return props.getProperty("cineast_java_flags","");
+    }
     public boolean delete(File f) throws IOException {
         if (f.isDirectory()) {
             for (File c : f.listFiles())

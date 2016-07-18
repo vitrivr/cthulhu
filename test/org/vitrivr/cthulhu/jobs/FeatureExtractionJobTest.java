@@ -74,8 +74,7 @@ public class FeatureExtractionJobTest {
         when(mockTools.delete(any())).thenCallRealMethod();
         when(mockTools.setWorkingDirectory(any())).thenCallRealMethod();
         String json = "{\"type\":\"FeatureExtractionJob\",\"priority\":3, \"name\":\"configjob\"," +
-                           "\"config\":{\"database\":\"somedbase\", \"retriever\":\"aretriever\", " +
-                           "\"features\":[\"feat1\", \"feat3\"], " +
+                           "\"immediate_cleanup\":\"false\", \"config\":{\"retriever\":\"aretriever\", " +
                            "\"input\":{ \"id\":\"vidioid\", \"file\":\"file.avi\", \"name\":\"crazy vid\", " +
                            " \"subtitles\": [\"subtitle1\", \"subtitle4\"]}}}";
         FeatureExtractionJob jb = (FeatureExtractionJob) jf.buildJob(json);
@@ -85,10 +84,7 @@ public class FeatureExtractionJobTest {
         String conFile = jb.workDir+"/"+jb.getName()+"_config.json";
         Reader fr = new FileReader(conFile);
         CineastConfig cc = gson.fromJson(fr, CineastConfig.class);
-        assertEquals(cc.database, "somedbase");
         assertEquals(cc.retriever, "aretriever");
-        assertEquals(cc.features.get(0), "feat1");
-        assertEquals(cc.features.get(1), "feat3");
         assertEquals(cc.input.id, "vidioid");
         assertEquals(cc.input.file, "file.avi");
         assertEquals(cc.input.subtitles.get(0), "subtitle1");
@@ -101,5 +97,6 @@ public class FeatureExtractionJobTest {
         String json = readWholeFile("full_fe_job.json");
         FeatureExtractionJob jb = (FeatureExtractionJob) jf.buildJob(json);
         jb.execute();
+        assertEquals(jb.getStatus(), 0); // Job succeeded
     }
 }

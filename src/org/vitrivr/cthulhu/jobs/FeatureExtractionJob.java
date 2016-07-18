@@ -44,7 +44,7 @@ public class FeatureExtractionJob extends Job {
         String cf = generateConfigFile(workDir);
         executeCineast(cf);
         if(immediate_cleanup) deleteWorkingDirectory();
-        return 0;
+        return status.getValue();
     }
     protected void deleteWorkingDirectory() {
         File dir = new File(workDir);
@@ -56,14 +56,16 @@ public class FeatureExtractionJob extends Job {
     }
     private void obtainInputFiles(String workingDir) {
         if(config == null || config.input == null) return;
-        boolean missing_files = false;
         File wdf = new File(workingDir);
         //System.out.println(wdf.getPath());
         File inpf = new File(wdf, config.input.file);
         String inpStr = inpf.getName();
         Set<String> dirFiles = new HashSet<String>(Arrays.asList(wdf.list()));
         if(!dirFiles.contains(inpStr)) {
-            tools.getFile(config.input.file, workingDir);
+            if(!tools.getFile(config.input.file, workingDir)) {
+                status = Status.UNEXPECTED_ERROR;
+                note = (note == null ? "" : note + " ; ") + "Unable to get remote files";
+            }
         }
         config.input.folder = wdf.getAbsolutePath();
         if(config.input.subtitles != null) {
@@ -71,7 +73,10 @@ public class FeatureExtractionJob extends Job {
                     File subf = new File(wdf,s);
                     String fnme = subf.getName();
                     if(!dirFiles.contains(fnme)) {
-                        tools.getFile(s, workingDir);
+                        if(!tools.getFile(s, workingDir) && status != Status.UNEXPECTED_ERROR) {
+                            status = Status.UNEXPECTED_ERROR;
+                            note = (note == null ? "" : note + " ; ") + "Unable to get remote files";
+                        }
                     }
                 });
         }
@@ -90,17 +95,23 @@ public class FeatureExtractionJob extends Job {
     private void executeCineast(String cfile) {
         String cineastDir = tools.getCineastLocation();
         if(cineastDir == null || cineastDir.isEmpty()) return ;
+        String javaFlags = tools.getJavaFlags();
+        String command = "java " + javaFlags + " -jar "+ cineastDir + " --job " + cfile;
+        //System.out.println("Command: "+command);
         try {
-            Process p = Runtime.getRuntime().exec("java -Xmx10G -Xms10G -jar "+cineastDir + " --job " + cfile);
+            Process p = Runtime.getRuntime().exec(command);
             InputStream is = p.getInputStream();
             InputStream es = p.getErrorStream();
             this.stdOut = IOUtils.toString(is,"UTF-8");
             this.stdErr = IOUtils.toString(es,"UTF-8");
             //System.out.println("SDOUT: "+stdOut);
             //System.out.println("SDERR: "+stdErr);
+            int retVal = p.waitFor();
+            if(retVal == 0) status = Job.Status.SUCCEEDED;
+        } catch (InterruptedException e) {
+            status = Job.Status.INTERRUPTED;
         } catch (Exception e) {
             status = Job.Status.FAILED;
-            // Now what?
         }
     }
 }
@@ -108,7 +119,7 @@ public class FeatureExtractionJob extends Job {
 class CineastConfig {
     CineastInput input;
     List<CineastFeature> features;
-    List<CineastExporter> exporters;
+    List<CineastFeature> exporters;
     CineastDBConfig database;
     String retriever;
     String decoder;
@@ -135,9 +146,6 @@ class CineastFeature {
     String name;
     @SerializedName("class")
     String _class;
+    String config;
 }
-class CineastExporter {
-    String name;
-    @SerializedName("class")
-    String _class;
-}
+
