@@ -83,6 +83,9 @@ public class FeatureExtractionJob extends Job {
     }
     private String generateConfigFile(String workingDir) {
         String confileName = workingDir+"/"+name+"_config.json";
+        if(config == null) return null;
+        if(config.extractor == null) config.extractor = new CineastExtractorConfig();
+        if(config.extractor.outputLocation == null) config.extractor.outputLocation = new File(workingDir).getAbsolutePath();
         try {
             Writer writer = new FileWriter(confileName);
             Gson gson = new GsonBuilder().create();
@@ -123,7 +126,7 @@ class CineastConfig {
     CineastDBConfig database;
     String retriever;
     String decoder;
-    String extractor;
+    CineastExtractorConfig extractor;
     String imagecache;
 }
 
@@ -133,6 +136,13 @@ class CineastInput {
     protected String file;
     String name;
     protected List<String> subtitles;
+}
+
+class CineastExtractorConfig {
+    int shotQueueSize;
+    int threadPoolSize;
+    int taskQueueSize;
+    String outputLocation;
 }
 
 class CineastDBConfig {

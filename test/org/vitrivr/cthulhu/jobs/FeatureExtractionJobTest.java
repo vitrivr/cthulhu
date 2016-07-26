@@ -97,6 +97,8 @@ public class FeatureExtractionJobTest {
         String json = readWholeFile("full_fe_job.json");
         FeatureExtractionJob jb = (FeatureExtractionJob) jf.buildJob(json);
         jb.execute();
+        //Gson gson = new Gson();
+        //System.out.println(gson.toJson(jb));
         assertEquals(jb.getStatus(), 0); // Job succeeded
     }
 }
