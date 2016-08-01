@@ -139,9 +139,9 @@ class CineastInput {
 }
 
 class CineastExtractorConfig {
-    int shotQueueSize;
-    int threadPoolSize;
-    int taskQueueSize;
+    Integer shotQueueSize;
+    Integer threadPoolSize;
+    Integer taskQueueSize;
     String outputLocation;
 }
 
@@ -158,4 +158,3 @@ class CineastFeature {
     String _class;
     String config;
 }
-

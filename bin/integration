@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+import sys
+import subprocess as sp
+import requests as r
+from time import sleep
+
+def feJob(workerDir):
+    workerPort = 8081
+    coordPort = 8082
+    coordAddress = "127.0.0.1"
+
+    workerCommand = "java -jar build/libs/cthulhu.jar -W -ha {} -hp {} -p {}".format(coordAddress, coordPort, workerPort)
+
+    coordCommand = "java -jar build/libs/cthulhu.jar -C -p {}".format(coordPort)
+
+    print("Running: {}\n Running: {}\n".format(coordCommand, workerCommand))
+    try:
+        coordPr = sp.Popen(coordCommand.split(),stdin=None, 
+                           stdout=None, stderr=None, close_fds=True)
+        sleep(3)
+        workPr = sp.Popen(workerCommand.split(), cwd=workerDir,stdin=None, 
+                          stdout=None, stderr=None, close_fds=True)
+        sleep(3)
+        # TODO check successful registration
+        rsp = r.get("http://{}:{}/workers".format(coordAddress,coordPort))
+        wks = rsp.json()
+        if len(wks) != 1:
+            raise Exception("Worker seems to have failed to register")
+        if wks[0]['port'] != workerPort:
+            raise Exception("Port of worker is wrong") # This should never happen though
+
+        jsonJob = None
+        with open('testresources/integration_fe_job.json') as f:
+            jsonJob = f.read()
+
+        rsp = r.post("http://{}:{}/jobs".format(coordAddress,coordPort), data=jsonJob)
+        if(rsp.status_code != 200):
+            raise Exception("Could not add job to coordinator")
+        sleep(1)
+        
+        rsp = r.get("http://{}:{}/jobs".format(coordAddress,coordPort))
+        jbs = rsp.json()
+        print(jbs)
+        if len(jbs) != 1:
+            raise Exception("Job failed to be created, it seems")
+
+        sleep(10)
+    except Exception as e:
+        print("Exception: {}".format(e))
+    finally:
+        coordPr.kill()
+        workPr.kill()
+
+usage = """./integration workerDir
+Runs the integration tests for the cthulhu scheduler.
+\tworkerDir - This is the directory of the other directory where the cthulhu worker will run
+"""
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print(usage)
+        sys.exit(1)
+
+    
+    feJob(sys.argv[1])
