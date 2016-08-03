@@ -1,7 +1,7 @@
 {
   "type":"FeatureExtractionJob",
   "priority":3,
-  "name":"IntegrationFEJob",
+  "name":"IntegrationFE_job",
   "immediate_cleanup":false,
   "config":{
     "input":{

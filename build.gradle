@@ -61,9 +61,11 @@ jar {
              attributes 'Main-Class': 'org.vitrivr.cthulhu.runners.CthulhuRunner'
     }
     archiveName = 'cthulhu.jar'
-    from {
-         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+    from ({
+         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } 
+    }) {
+             exclude '*workspace*'
+         }
 }
 
 task deploy(dependsOn: [build, jar])

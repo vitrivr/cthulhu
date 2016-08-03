@@ -60,9 +60,7 @@ public class JobTools {
     }
     public String setWorkingDirectory(Job j) {
         String workspaceDir = props.getProperty("workspace");
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        URL url = classLoader.getResource(workspaceDir);
-        workspaceDir = url.getFile();
+        File wsd = new File(workspaceDir);
 
         File dir = null;
         int tryCount = 0;
@@ -83,7 +81,7 @@ public class JobTools {
             suffix = Integer.toString(tryCount);
         }
         if(dir == null || created == false) {
-            lg.error("Error when trying to create working directory {}. Directory exists.", fName);
+            lg.error("Error when trying to create working directory {}.", fName);
             return null; // ERROR
         }
         return fName;

@@ -4,7 +4,17 @@ import subprocess as sp
 import requests as r
 from time import sleep
 
+def rebuildGradle(directory):
+    try:
+        sp.call(["gradle","clean"], cwd=directory)
+        sp.call(["gradle","build"], cwd=directory)
+    except Exception as e:
+        print("Exception: {}".format(e))
+        raise e
+
 def feJob(workerDir):
+    rebuildGradle(None)
+    rebuildGradle(workerDir)
     workerPort = 8081
     coordPort = 8082
     coordAddress = "127.0.0.1"
