@@ -19,7 +19,7 @@ public class JobTools {
     CthulhuRESTConnector conn;
     Properties props;
     Worker coord;
-    private static Logger lg = LogManager.getLogger("r.job.tools");
+    Logger lg = LogManager.getLogger("r.job.tools");
 
     public JobTools(Properties props, CthulhuRESTConnector conn) {
         this.props = props;
@@ -50,10 +50,13 @@ public class JobTools {
         File localFile = new File(wdFl, prseFname.getName());
         if(localFile.exists()) {
             // We have a problem: The file exists. What do we do?
+            return true;
         }
         try {
-            conn.getFile(coord, filename, localFile);
+            conn.getFile(coord, "workspace/"+filename, localFile);
         } catch (Exception e) {
+            lg.error("Trouble getting file {}. Exception: {}",
+                     filename, e.toString());
             return false; // Error
         }
         return true;

@@ -145,7 +145,7 @@ public class CthulhuRESTConnector {
     public InputStream getFile(Worker host, String remoteFile, File localFile) throws Exception {
         InputStream in = null;
         try {
-            URL workerUrl = new URL("GET", host.getAddress(), host.getPort(), remoteFile);
+            URL workerUrl = new URL(PROTOCOL, host.getAddress(), host.getPort(), "/"+remoteFile);
             FileUtils.copyURLToFile(workerUrl, localFile);
         } catch (IOException io) {
             throw io;

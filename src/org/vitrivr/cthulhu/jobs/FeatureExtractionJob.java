@@ -38,8 +38,10 @@ public class FeatureExtractionJob extends Job {
             return 1;
         }
         if(workDir == null || workDir.isEmpty()) {
+            tools.lg.info("{} - Setting up the working directory.", name);
             workDir = tools.setWorkingDirectory(this);
         }
+        tools.lg.info("{} - Working directory is {}.", name, workDir);
         obtainInputFiles(workDir);
         String cf = generateConfigFile(workDir);
         executeCineast(cf);
@@ -47,22 +49,25 @@ public class FeatureExtractionJob extends Job {
         return status.getValue();
     }
     protected void deleteWorkingDirectory() {
+        tools.lg.info("{} - Deleting the working directory", name);
         File dir = new File(workDir);
         try {
             tools.delete(dir);
         } catch (Exception e) {
             note = (note == null ? "" : note + " ; ") + "Unable to delete the working directory "+workDir;
+            tools.lg.warn("{} - Unable to delete the working directory", name);
         }
     }
     private void obtainInputFiles(String workingDir) {
         if(config == null || config.input == null) return;
         File wdf = new File(workingDir);
-        //System.out.println(wdf.getPath());
         File inpf = new File(wdf, config.input.file);
         String inpStr = inpf.getName();
         Set<String> dirFiles = new HashSet<String>(Arrays.asList(wdf.list()));
         if(!dirFiles.contains(inpStr)) {
+            tools.lg.debug("{} - Obtaining file {}", name, config.input.file);
             if(!tools.getFile(config.input.file, workingDir)) {
+                tools.lg.error("{} - Trouble getting file {}",name,config.input.file);
                 status = Status.UNEXPECTED_ERROR;
                 note = (note == null ? "" : note + " ; ") + "Unable to get remote files";
             }
@@ -72,14 +77,17 @@ public class FeatureExtractionJob extends Job {
             config.input.subtitles.stream().forEach(s-> {
                     File subf = new File(wdf,s);
                     String fnme = subf.getName();
+                    tools.lg.debug("{} - Obtaining file {}", name, fnme);
                     if(!dirFiles.contains(fnme)) {
                         if(!tools.getFile(s, workingDir) && status != Status.UNEXPECTED_ERROR) {
+                            tools.lg.error("{} - Unable to get remote file {}", name, fnme);
                             status = Status.UNEXPECTED_ERROR;
                             note = (note == null ? "" : note + " ; ") + "Unable to get remote files";
                         }
                     }
                 });
         }
+        tools.lg.info("{} - Obtained allremote files.", name);
     }
     private String generateConfigFile(String workingDir) {
         String confileName = workingDir+"/"+name+"_config.json";
@@ -92,6 +100,7 @@ public class FeatureExtractionJob extends Job {
             gson.toJson(config, writer);
             writer.close();
         } catch (IOException io) {
+            tools.lg.error("{} - Unable to generate a config file.", name);
         }
         return confileName;
     }
@@ -113,8 +122,10 @@ public class FeatureExtractionJob extends Job {
             if(retVal == 0) status = Job.Status.SUCCEEDED;
         } catch (InterruptedException e) {
             status = Job.Status.INTERRUPTED;
+            tools.lg.warn("{} - Job has been interrupted",name);
         } catch (Exception e) {
             status = Job.Status.FAILED;
+            tools.lg.error("{} - Exception occurred during execution: {}", name, e,toString());
         }
     }
 }

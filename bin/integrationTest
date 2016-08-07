@@ -19,6 +19,13 @@ def feJob(workerDir):
     coordPort = 8082
     coordAddress = "127.0.0.1"
 
+    copyCommand = "cp testresources/workspace/fullFEjob/sample_video.mp4 build/resources/main/ui/workspace/"
+    try:
+        sp.call(copyCommand.split())
+    except Exception as e:
+        print("Exception: {}".format(e))
+        raise e
+
     workerCommand = "java -jar build/libs/cthulhu.jar -W -ha {} -hp {} -p {}".format(coordAddress, coordPort, workerPort)
 
     coordCommand = "java -jar build/libs/cthulhu.jar -C -p {}".format(coordPort)
