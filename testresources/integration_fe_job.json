@@ -2,7 +2,7 @@
   "type":"FeatureExtractionJob",
   "priority":3,
   "name":"IntegrationFE_job",
-  "immediate_cleanup":false,
+  "immediate_cleanup":true,
   "config":{
     "input":{
       "file": "fullFEJob/sample_video.mp4",

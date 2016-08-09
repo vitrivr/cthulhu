@@ -61,7 +61,7 @@ def feJob(workerDir):
         if len(jbs) != 1:
             raise Exception("Job failed to be created, it seems")
 
-        sleep(10)
+        sleep(30)
     except Exception as e:
         print("Exception: {}".format(e))
     finally:

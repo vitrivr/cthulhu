@@ -46,6 +46,7 @@ public class FeatureExtractionJob extends Job {
         String cf = generateConfigFile(workDir);
         executeCineast(cf);
         if(immediate_cleanup) deleteWorkingDirectory();
+        else tools.lg.info("{} - No cleanup to be done",name);
         return status.getValue();
     }
     protected void deleteWorkingDirectory() {
@@ -55,7 +56,7 @@ public class FeatureExtractionJob extends Job {
             tools.delete(dir);
         } catch (Exception e) {
             note = (note == null ? "" : note + " ; ") + "Unable to delete the working directory "+workDir;
-            tools.lg.warn("{} - Unable to delete the working directory", name);
+            tools.lg.warn("{} - Unable to delete the working directory: {}", name, e.toString());
         }
     }
     private void obtainInputFiles(String workingDir) {
@@ -94,6 +95,7 @@ public class FeatureExtractionJob extends Job {
         if(config == null) return null;
         if(config.extractor == null) config.extractor = new CineastExtractorConfig();
         if(config.extractor.outputLocation == null) config.extractor.outputLocation = new File(workingDir).getAbsolutePath();
+        tools.lg.info("{} - Generating config file in {}",name, confileName);
         try {
             Writer writer = new FileWriter(confileName);
             Gson gson = new GsonBuilder().create();
@@ -106,16 +108,20 @@ public class FeatureExtractionJob extends Job {
     }
     private void executeCineast(String cfile) {
         String cineastDir = tools.getCineastLocation();
+        tools.lg.info("{} - Preparing to execute cineast",name);
         if(cineastDir == null || cineastDir.isEmpty()) return ;
         String javaFlags = tools.getJavaFlags();
         String command = "java " + javaFlags + " -jar "+ cineastDir + " --job " + cfile;
         //System.out.println("Command: "+command);
         try {
+            tools.lg.debug("{} - Preparing to create process",name);
             Process p = Runtime.getRuntime().exec(command);
             InputStream is = p.getInputStream();
             InputStream es = p.getErrorStream();
+            tools.lg.debug("{} - Starting to collect input/output stream",name);
             this.stdOut = IOUtils.toString(is,"UTF-8");
             this.stdErr = IOUtils.toString(es,"UTF-8");
+            tools.lg.debug("{} - Done collecting input/output stream",name);
             //System.out.println("SDOUT: "+stdOut);
             //System.out.println("SDERR: "+stdErr);
             int retVal = p.waitFor();
@@ -127,6 +133,7 @@ public class FeatureExtractionJob extends Job {
             status = Job.Status.FAILED;
             tools.lg.error("{} - Exception occurred during execution: {}", name, e,toString());
         }
+        tools.lg.info("{} - Execution of cineast finalized",name);
     }
 }
 
