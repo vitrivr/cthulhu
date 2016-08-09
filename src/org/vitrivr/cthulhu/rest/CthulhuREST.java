@@ -9,9 +9,14 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileNotFoundException;
 
 import java.util.Properties;
 
@@ -19,6 +24,7 @@ import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.worker.Worker;
 
 public class CthulhuREST {
+    private String workspace;
     private CthulhuScheduler ms;
     private Logger LOGGER = LogManager.getLogger("r.m.api");
     /**
@@ -39,6 +45,7 @@ public class CthulhuREST {
         gson = new Gson();
         LOGGER.info("Creating REST paths");
         String sf = prop.getProperty("staticfiles");
+        workspace = prop.getProperty("workspace");
         try {
             port = Integer.parseInt(prop.getProperty("port"));
         } catch (Exception e) { throw e; }
@@ -59,6 +66,36 @@ public class CthulhuREST {
         port(listenPort);
         LOGGER.info("Static files are served from: "+staticFilesDir);
         staticFileLocation(staticFilesDir);
+        get("/data/*", (req, res) -> {
+                String fname = req.pathInfo().replaceFirst("/data/", "");
+                fname = fname.replace("../", "/");
+                System.out.println("Filename: "+fname);
+                InputStream is;
+                try {
+                    File infile = new File(workspace, fname);
+                    is = new FileInputStream(infile);
+                    if (is != null) {
+                        //res.type(getContentType(fname));
+                        res.status(200);
+
+                        byte[] buf = new byte[1024];
+                        OutputStream os = res.raw().getOutputStream();
+                        int count = 0;
+                        while ((count = is.read(buf)) >= 0) {
+                            os.write(buf, 0, count);
+                        }
+                        is.close();
+                        os.close();
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+                return "";
+            });
         get("/jobs/:id", (req, res) -> {
                 String id = req.params(":id");
                 if(id.isEmpty()) res.status(400);

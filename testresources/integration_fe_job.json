@@ -5,7 +5,7 @@
   "immediate_cleanup":false,
   "config":{
     "input":{
-      "file": "sample_video.mp4",
+      "file": "fullFEJob/sample_video.mp4",
       "name": "A Test Video",
       "id": "v1"
     },

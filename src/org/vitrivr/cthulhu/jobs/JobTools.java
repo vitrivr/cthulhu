@@ -53,7 +53,7 @@ public class JobTools {
             return true;
         }
         try {
-            conn.getFile(coord, "workspace/"+filename, localFile);
+            conn.getFile(coord, "/data/"+filename, localFile);
         } catch (Exception e) {
             lg.error("Trouble getting file {}. Exception: {}",
                      filename, e.toString());
