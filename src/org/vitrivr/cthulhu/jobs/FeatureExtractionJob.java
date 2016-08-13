@@ -27,6 +27,7 @@ public class FeatureExtractionJob extends Job {
     String stdErr;
     String note;
     boolean immediate_cleanup = true;
+    boolean return_zipfile = true;
     /**
      * The working directory of the job. If it's set, then it won't be recreated.
      * Files that are already in the working directory will override remote server files.
@@ -45,9 +46,18 @@ public class FeatureExtractionJob extends Job {
         obtainInputFiles(workDir);
         String cf = generateConfigFile(workDir);
         executeCineast(cf);
+        if(return_zipfile) returnResult();
         if(immediate_cleanup) deleteWorkingDirectory();
         else tools.lg.info("{} - No cleanup to be done",name);
         return status.getValue();
+    }
+    protected void returnResult() {
+        try {
+        tools.sendZipDirectory(workDir);
+        } catch (Exception e) {
+            tools.lg.error("{} - Failed to send zipped results: {}", name, e.toString());
+            note = (note == null ? "" : note + " ; ") + "Unable to send zipped results to coordinator";
+        }
     }
     protected void deleteWorkingDirectory() {
         tools.lg.info("{} - Deleting the working directory", name);

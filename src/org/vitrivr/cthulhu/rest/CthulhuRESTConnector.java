@@ -7,6 +7,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.MalformedURLException;
 
+import java.util.function.BiPredicate;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.InputStream;
@@ -151,5 +153,29 @@ public class CthulhuRESTConnector {
             throw io;
         }
         return in;
+    }
+    public void sendStream(File sendFile, BiPredicate<File, OutputStream> callback,
+                           Worker w, String remoteFile) throws Exception {
+        try {
+            URL workerUrl = new URL(PROTOCOL, w.getAddress(), w.getPort(), 
+                                    "/data/"+remoteFile);
+            HttpURLConnection con = (HttpURLConnection) workerUrl.openConnection();
+            con.setDoOutput(true);
+            con.setChunkedStreamingMode(0);
+            con.setRequestMethod("POST");
+            OutputStream out = con.getOutputStream();
+            boolean res = callback.test(sendFile, out);
+            if(!res) {
+                throw new Exception("Unable to send zipped directory");
+            }
+            if (con.getResponseCode() != HttpURLConnection.HTTP_CREATED &&
+                con.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                                           + con.getResponseCode());
+            }
+            con.disconnect();
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

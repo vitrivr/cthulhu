@@ -36,8 +36,8 @@ Please report issues at http://github.com/vitrivr/cthulhu/issues
 ### Adding new job types
 The code is designed so that adding new jobs is an easy process. To add a new job type, you must follow these steps:
 
-1. Create a new class in the package `ch.unibas.cs.dbis.cthulhu` that extends the `Job` abstract class. Specifically
-you must implement the `execute` method, and the `cleanup` method.
+1. Create a new class in the package `org.vitrivr.cthulhu.jobs` that extends the `Job` abstract class. Specifically
+you must implement the `execute` method, and the `cleanup` method if you need any cleanup to be done.
 
-2. In the `JobFactory` class, you must add the option to create a job of the appropriate type. This can be done by
-adding a new `case` in the `buildJob` method.
+2. In the web user interface, you must add the option to create a job of the appropriate type. This can be done by
+adding a new `option` in the `typeLst` datalist around [this location](https://github.com/vitrivr/cthulhu/blob/master/resources/ui/index.html#L117).
