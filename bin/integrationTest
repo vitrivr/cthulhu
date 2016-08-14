@@ -47,7 +47,7 @@ def feJob(workerDir):
             raise Exception("Port of worker is wrong") # This should never happen though
 
         jsonJob = None
-        with open('testresources/integration_fe_job.json') as f:
+        with open('testresources/integration_fe_return.json') as f:
             jsonJob = f.read()
 
         rsp = r.post("http://{}:{}/jobs".format(coordAddress,coordPort), data=jsonJob)

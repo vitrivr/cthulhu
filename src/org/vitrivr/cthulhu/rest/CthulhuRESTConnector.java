@@ -14,6 +14,8 @@ import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
@@ -156,18 +158,28 @@ public class CthulhuRESTConnector {
     }
     public void sendStream(File sendFile, BiPredicate<File, OutputStream> callback,
                            Worker w, String remoteFile) throws Exception {
+        String CRLF = "\r\n";
+        String boundary = "cthulhuBoundary123456789";
+        PrintWriter wr = null;
         try {
             URL workerUrl = new URL(PROTOCOL, w.getAddress(), w.getPort(), 
                                     "/data/"+remoteFile);
             HttpURLConnection con = (HttpURLConnection) workerUrl.openConnection();
+            con.setRequestProperty("Content-Type", "multipart/form-data; boundary="+boundary);
             con.setDoOutput(true);
-            con.setChunkedStreamingMode(0);
             con.setRequestMethod("POST");
             OutputStream out = con.getOutputStream();
+            wr = new PrintWriter(new OutputStreamWriter(out));
+                        wr.println("--" + boundary);
+            wr.println("Content-Disposition: form-data; name=\"file\"; filename=\""+remoteFile+"\"");
+            wr.println("Content-Type: application/octet-stream");
+            wr.println();
+
             boolean res = callback.test(sendFile, out);
             if(!res) {
                 throw new Exception("Unable to send zipped directory");
             }
+            wr.println("--" + boundary + "--");
             if (con.getResponseCode() != HttpURLConnection.HTTP_CREATED &&
                 con.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 throw new RuntimeException("Failed : HTTP error code : "

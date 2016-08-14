@@ -2,7 +2,11 @@ package org.vitrivr.cthulhu.rest;
 
 import org.vitrivr.cthulhu.scheduler.CthulhuScheduler;
 
+import org.vitrivr.cthulhu.jobs.StreamUtils;
+
 import static spark.Spark.*;
+
+import javax.servlet.MultipartConfigElement;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +18,7 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.FileNotFoundException;
@@ -69,7 +74,6 @@ public class CthulhuREST {
         get("/data/*", (req, res) -> {
                 String fname = req.pathInfo().replaceFirst("/data/", "");
                 fname = fname.replace("../", "/");
-                System.out.println("Filename: "+fname);
                 InputStream is;
                 try {
                     File infile = new File(workspace, fname);
@@ -108,7 +112,24 @@ public class CthulhuREST {
                 return gson.toJson(ms.getWorkers(id));
             });
         get("/workers", (req, res) -> gson.toJson(ms.getWorkers()) );
-
+        post("/data/*", (req, res) -> {
+                String fname = req.pathInfo().replaceFirst("/data/", "");
+                fname = fname.replace("../", "/");
+                System.out.println("Receiving a file back: "+fname);
+                File fout = new File(fname);
+                if(fout.exists()) {
+                    System.out.println("File exists. Not saving");
+                    res.status(400);
+                    //return "";
+                }
+                req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/temp"));
+                try (InputStream is = req.raw().getPart("file").getInputStream()) {
+                        // Use the input stream to create a file
+                        FileOutputStream fos = new FileOutputStream(fname);
+                        StreamUtils.copy(is, fos);
+                    }
+                return "";
+            });
         post("/jobs", (req, res) -> {
                 Job j = ms.registerJob(req.body());
                 if(j == null) res.status(400);

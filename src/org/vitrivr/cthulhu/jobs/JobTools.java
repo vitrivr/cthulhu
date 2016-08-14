@@ -44,9 +44,11 @@ public class JobTools {
             throw new FileNotFoundException("Failed to delete file: " + f);
         return true;
     }
-    public void sendZipDirectory(String directory) throws Exception {
+    public void sendZipDirectory(String directory, String file_name) throws Exception {
         File fsDir = new File(directory);
-        conn.sendStream(fsDir, Zipper::zip, coord, directory);
+        lg.info("Sending directory {} to host {} as file {}",
+                directory, coord.getId(), file_name);
+        conn.sendStream(fsDir, Zipper::zip, coord, file_name);
     }
     public boolean getFile(String filename, String workingDir) {
         File wdFl = new File(workingDir);

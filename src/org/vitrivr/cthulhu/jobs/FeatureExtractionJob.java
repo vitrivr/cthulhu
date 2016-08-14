@@ -47,13 +47,14 @@ public class FeatureExtractionJob extends Job {
         String cf = generateConfigFile(workDir);
         executeCineast(cf);
         if(return_zipfile) returnResult();
+        else tools.lg.info("{} - Results will not be returned to cooridnator");
         if(immediate_cleanup) deleteWorkingDirectory();
         else tools.lg.info("{} - No cleanup to be done",name);
         return status.getValue();
     }
     protected void returnResult() {
         try {
-        tools.sendZipDirectory(workDir);
+            tools.sendZipDirectory(workDir, name+".zip");
         } catch (Exception e) {
             tools.lg.error("{} - Failed to send zipped results: {}", name, e.toString());
             note = (note == null ? "" : note + " ; ") + "Unable to send zipped results to coordinator";
