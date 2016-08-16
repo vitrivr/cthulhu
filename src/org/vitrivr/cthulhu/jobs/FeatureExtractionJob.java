@@ -27,7 +27,7 @@ public class FeatureExtractionJob extends Job {
     String stdErr;
     String note;
     boolean immediate_cleanup = true;
-    boolean return_zipfile = true;
+    boolean return_zipfile = false;
     /**
      * The working directory of the job. If it's set, then it won't be recreated.
      * Files that are already in the working directory will override remote server files.
@@ -38,7 +38,7 @@ public class FeatureExtractionJob extends Job {
             this.status = Status.UNEXPECTED_ERROR;
             return 1;
         }
-        if(workDir == null || workDir.isEmpty()) {
+        if(tools != null && (workDir == null || workDir.isEmpty())) {
             tools.lg.info("{} - Setting up the working directory.", name);
             workDir = tools.setWorkingDirectory(this);
         }

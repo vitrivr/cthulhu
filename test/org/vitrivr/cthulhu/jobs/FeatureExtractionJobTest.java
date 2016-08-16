@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
 public class FeatureExtractionJobTest {
     static JobFactory jf;
     static JobTools jt;
+    static JobTools mockTools;
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         Properties props = new Properties();
@@ -40,6 +41,12 @@ public class FeatureExtractionJobTest {
         jt = new JobTools(props, null);
         jf = new JobFactory();
         jf.setTools(jt);
+        mockTools = mock(JobTools.class);
+        when(mockTools.getFile(any(), any())).thenReturn(true);
+        when(mockTools.delete(any())).thenCallRealMethod();
+        when(mockTools.setWorkingDirectory(any())).thenCallRealMethod();
+        mockTools.lg = jt.lg;
+        mockTools.props = jt.props;
     }
 
     @AfterClass
@@ -69,16 +76,12 @@ public class FeatureExtractionJobTest {
     
     @Test
     public void makeConfigFile() throws Exception {
-        JobTools mockTools = mock(JobTools.class);
-        when(mockTools.getFile(any(), any())).thenReturn(true);
-        when(mockTools.delete(any())).thenCallRealMethod();
-        when(mockTools.setWorkingDirectory(any())).thenCallRealMethod();
         String json = "{\"type\":\"FeatureExtractionJob\",\"priority\":3, \"name\":\"configjob\"," +
                            "\"immediate_cleanup\":\"false\", \"config\":{\"retriever\":\"aretriever\", " +
                            "\"input\":{ \"id\":\"vidioid\", \"file\":\"file.avi\", \"name\":\"crazy vid\", " +
                            " \"subtitles\": [\"subtitle1\", \"subtitle4\"]}}}";
         FeatureExtractionJob jb = (FeatureExtractionJob) jf.buildJob(json);
-        jb.setTools(jt);
+        jb.setTools(mockTools);
         jb.execute();
         Gson gson = new Gson();
         String conFile = jb.workDir+"/"+jb.getName()+"_config.json";
