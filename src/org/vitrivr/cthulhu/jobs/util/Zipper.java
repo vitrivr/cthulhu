@@ -40,6 +40,7 @@ class Zipper {
                     }
                 }
             }
+            zout.finish();
         } catch (Exception e) {
             success = false;
         } finally {

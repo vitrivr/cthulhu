@@ -167,19 +167,24 @@ public class CthulhuRESTConnector {
             HttpURLConnection con = (HttpURLConnection) workerUrl.openConnection();
             con.setRequestProperty("Content-Type", "multipart/form-data; boundary="+boundary);
             con.setDoOutput(true);
+            con.setDoInput(true);
+            con.setUseCaches(false);
             con.setRequestMethod("POST");
             OutputStream out = con.getOutputStream();
             wr = new PrintWriter(new OutputStreamWriter(out));
-                        wr.println("--" + boundary);
-            wr.println("Content-Disposition: form-data; name=\"file\"; filename=\""+remoteFile+"\"");
-            wr.println("Content-Type: application/octet-stream");
-            wr.println();
-
+            wr.print("--"+boundary+CRLF);
+            wr.print("Content-Disposition: form-data; name=\"file\"; filename=\""+remoteFile+"\""+CRLF);
+            wr.print("Content-Type: application/octet-stream"+CRLF);
+            wr.print(CRLF);
+            wr.flush();
             boolean res = callback.test(sendFile, out);
+            out.flush();
             if(!res) {
                 throw new Exception("Unable to send zipped directory");
             }
-            wr.println("--" + boundary + "--");
+            wr.print(CRLF);
+            wr.print("--" + boundary + "--" + CRLF);
+            wr.flush();
             if (con.getResponseCode() != HttpURLConnection.HTTP_CREATED &&
                 con.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 throw new RuntimeException("Failed : HTTP error code : "
