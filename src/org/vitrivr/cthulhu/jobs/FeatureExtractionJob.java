@@ -53,8 +53,10 @@ public class FeatureExtractionJob extends Job {
         return status.getValue();
     }
     protected void returnResult() {
+        String newfileName = 
+            config.input.file.substring(0,config.input.file.indexOf("."))+"_result.zip";
         try {
-            tools.sendZipDirectory(workDir, name+".zip");
+            tools.sendZipDirectory(workDir, newfileName);
         } catch (Exception e) {
             tools.lg.error("{} - Failed to send zipped results: {}", name, e.toString());
             note = (note == null ? "" : note + " ; ") + "Unable to send zipped results to coordinator";

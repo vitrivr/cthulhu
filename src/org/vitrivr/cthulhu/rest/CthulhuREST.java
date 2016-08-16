@@ -116,7 +116,7 @@ public class CthulhuREST {
                 String fname = req.pathInfo().replaceFirst("/data/", "");
                 fname = fname.replace("../", "/");
                 System.out.println("Receiving a file back: "+fname);
-                File fout = new File(fname);
+                File fout = new File(workspace, fname);
                 if(fout.exists()) {
                     System.out.println("File exists. Not saving");
                     res.status(400);
@@ -125,7 +125,7 @@ public class CthulhuREST {
                 req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/temp"));
                 try (InputStream is = req.raw().getPart("file").getInputStream()) {
                         // Use the input stream to create a file
-                        FileOutputStream fos = new FileOutputStream(fname);
+                        FileOutputStream fos = new FileOutputStream(fout);
                         StreamUtils.copy(is, fos);
                     }
                 return "";
