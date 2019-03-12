@@ -1,5 +1,6 @@
 package org.vitrivr.cthulhu.jobs;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
@@ -50,16 +51,16 @@ public class FeatureExtractionJobTest {
     }
 
     @AfterClass
-    public static void tearDownAfterClass() throws Exception {
+    public static void tearDownAfterClass() {
     }
 
-    private String readWholeFile(String jsonFile) throws Exception {
+    private String readWholeFile(String jsonFile) throws IOException {
         String jsonRestore;
         try {
             InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(jsonFile);
             jsonRestore = IOUtils.toString(is,"UTF-8");
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println("Unable to restore from file "+jsonFile+". Exception: "+e.toString());
             throw e;
         }
@@ -95,8 +96,13 @@ public class FeatureExtractionJobTest {
         jb.deleteWorkingDirectory();
     }
 
+    /**
+     * This is the test that will be fixed once the connection to Cineast is up to date.
+     * @throws Exception when the json file specified doesn't exist
+     */
     @Test
-    public void withValidConfFile() throws Exception {
+    @Ignore
+    public void withValidConfFile() throws IOException {
         String json = readWholeFile("full_fe_job.json");
         FeatureExtractionJob jb = (FeatureExtractionJob) jf.buildJob(json);
         jb.execute();

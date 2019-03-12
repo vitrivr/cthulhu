@@ -1,4 +1,4 @@
-package org.vitrivr.cthulhu.jobs;
+package org.vitrivr.cthulhu.jobs.util;
 
 import java.util.zip.ZipOutputStream;
 import java.util.zip.ZipEntry;
@@ -17,7 +17,7 @@ import java.util.Deque;
 
 import java.net.URI;
 
-class Zipper { 
+public class Zipper {
     public static boolean zip(File directory, OutputStream zipOutput) {
         URI base = directory.toURI();
         Deque<File> queue = new LinkedList<File>();
