@@ -62,7 +62,7 @@ public class CthulhuRunner {
                 }
             }
         } catch (SocketException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return "127.0.0.1"; // If no IP was found earlier, just return loopback interface
     }
