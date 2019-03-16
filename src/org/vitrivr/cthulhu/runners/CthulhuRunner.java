@@ -75,7 +75,6 @@ public class CthulhuRunner {
     static Optional<String> pickInetAddress(Enumeration<InetAddress> inetAddressEnumeration) {
         while(inetAddressEnumeration.hasMoreElements()) {
             InetAddress address = inetAddressEnumeration.nextElement();
-            System.out.println(Bytes.asList(address.getAddress()).toString());
             if(!address.isLinkLocalAddress() && address instanceof Inet4Address) {
                 return Optional.of(address.getHostAddress());
             }
