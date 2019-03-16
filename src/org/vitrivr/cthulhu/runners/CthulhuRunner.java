@@ -1,5 +1,9 @@
 package org.vitrivr.cthulhu.runners;
 
+import com.google.common.primitives.Bytes;
+import java.net.Inet4Address;
+import java.net.SocketException;
+import java.util.Optional;
 import org.vitrivr.cthulhu.rest.CthulhuREST;
 import org.vitrivr.cthulhu.scheduler.CthulhuScheduler;
 import org.vitrivr.cthulhu.scheduler.CoordinatorScheduler;
@@ -45,7 +49,6 @@ public class CthulhuRunner {
 
     // Returns first available non-loopback, active IP address
     static String getIPAddress() {
-        String ip = null;
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
@@ -53,18 +56,31 @@ public class CthulhuRunner {
                 // filters out 127.0.0.1 and inactive interfaces
                 if (iface.isLoopback() || !iface.isUp())
                     continue;
-                Enumeration<InetAddress> addresses = iface.getInetAddresses();
-                while(addresses.hasMoreElements()) {
-                    InetAddress addr = addresses.nextElement();
-                    if(addr.isLinkLocalAddress()) continue;
-                    ip = addr.getHostAddress();
-                    return ip;
+                Optional<String> optionalAddress = pickInetAddress(iface.getInetAddresses());
+                if (optionalAddress.isPresent()) {
+                    return optionalAddress.get();
                 }
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SocketException e) {
+            e.printStackTrace();
         }
         return "127.0.0.1"; // If no IP was found earlier, just return loopback interface
+    }
+
+    /**
+     * Receives an {@link Enumeration} of addresses and waits until one is given that is not local and is an IPv4 address.
+     * @param inetAddressEnumeration the {@link Enumeration} of addresses to search
+     * @return an address if found, otherwise return an empty optional
+     */
+    static Optional<String> pickInetAddress(Enumeration<InetAddress> inetAddressEnumeration) {
+        while(inetAddressEnumeration.hasMoreElements()) {
+            InetAddress address = inetAddressEnumeration.nextElement();
+            System.out.println(Bytes.asList(address.getAddress()).toString());
+            if(!address.isLinkLocalAddress() && address instanceof Inet4Address) {
+                return Optional.of(address.getHostAddress());
+            }
+        }
+        return Optional.empty();
     }
 
     public static CommandLine populateProperties(String[] args, Properties prop) throws Exception {
