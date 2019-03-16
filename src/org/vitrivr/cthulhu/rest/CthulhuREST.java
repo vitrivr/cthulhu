@@ -2,7 +2,7 @@ package org.vitrivr.cthulhu.rest;
 
 import org.vitrivr.cthulhu.scheduler.CthulhuScheduler;
 
-import org.vitrivr.cthulhu.jobs.StreamUtils;
+import org.vitrivr.cthulhu.jobs.util.StreamUtils;
 
 import static spark.Spark.*;
 

@@ -1,4 +1,4 @@
-package org.vitrivr.cthulhu.jobs;
+package org.vitrivr.cthulhu.jobs.util;
 
 import java.io.File;
 import java.io.InputStream;

@@ -2,6 +2,7 @@ package org.vitrivr.cthulhu.jobs;
 
 import java.util.Properties;
 
+import org.vitrivr.cthulhu.jobs.util.Zipper;
 import org.vitrivr.cthulhu.rest.CthulhuRESTConnector;
 
 import org.vitrivr.cthulhu.worker.Worker;

@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
    The Job interface. Defines the basic methods for jobs to be manipulated.
  */
 abstract public class Job implements Comparable<Job>{
-    public static enum Status{
+    public enum Status {
         SUCCEEDED(0),  // Failure in the job
         FAILED(1),   // Job failed while running
         WAITING(2), // Job has been created, but it has not been run.
