@@ -1,62 +1,63 @@
 package org.vitrivr.cthulhu.scheduler;
 
-import org.junit.Test;
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.vitrivr.cthulhu.jobs.BashJob;
 import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.jobs.JobFactory;
 
-import java.util.stream.Collectors;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Set;
-
 public class CthulhuSchedulerTest {
-    static CthulhuScheduler ms;
-    static JobFactory jf;
-    @BeforeClass
-    public static void setupBeforeClass() {
-        ms = new CoordinatorScheduler(null);
-        jf = new JobFactory();
-    }
 
-    @Test
-    public void registerDeleteJob() {
-        String jobDef = "{\"type\":\"BashJob\",\"action\":\"echo wah\",\"name\":\"wahJob\"}";
-        ms.registerJob(jobDef);
-        Job jb = ms.getJobs("wahJob");
-        assertEquals(jb.getType(),"BashJob");
-        assertEquals(jb.getAction(),"echo wah");
-        assertEquals(jb.getPriority(),2); // Default priority
-        
-        try {
-            ms.deleteJob("wahJob");
-        } catch (Exception e) {/*Ignoring...*/}
-        jb = ms.getJobs("wahJob");
-        assertEquals(jb,null);
+  private static CthulhuScheduler ms;
+
+  @BeforeClass
+  public static void setupBeforeClass() {
+    ms = new CoordinatorScheduler(null);
+  }
+
+  @Test
+  public void registerDeleteJob() {
+    String jobDef = "{\"type\":\"BashJob\",\"action\":\"echo wah\",\"name\":\"wahJob\"}";
+    ms.registerJob(jobDef);
+    Job jb = ms.getJobs("wahJob");
+    assertTrue(jb instanceof BashJob);
+    assertEquals("echo wah", jb.getAction());
+    assertEquals(2, jb.getPriority()); // Default priority
+
+    try {
+      ms.deleteJob("wahJob");
+    } catch (Exception e) {/*Ignoring...*/}
+    jb = ms.getJobs("wahJob");
+    assertNull(jb);
+  }
+
+  @Test
+  public void getJobList() {
+    String jobDefSt = "{\"type\":\"BashJob\",\"action\":\"echo wah\",\"name\":\"";
+    String jobDefEnd = "\"}";
+    ArrayList<String> jobNames = new ArrayList<>();
+    // Register 10 jobs. Store their names in jobNames.
+    for (int i = 0; i < 10; i++) {
+      String jobName = "wahJob" + i;
+      jobNames.add(jobName);
+      ms.registerJob(jobDefSt + jobName + jobDefEnd);
     }
-    
-    @Test
-    public void getJobList() {
-        String jobDefSt = "{\"type\":\"BashJob\",\"action\":\"echo wah\",\"name\":\"";
-        String jobDefEnd = "\"}";
-        ArrayList<String> jobNames = new ArrayList<String>();
-        // Register 10 jobs. Store their names in jobNames.
-        for(int i = 0; i < 10; i++) {
-            String jobName = "wahJob"+Integer.toString(i);
-            jobNames.add(jobName);
-            ms.registerJob(jobDefSt+jobName+jobDefEnd);
-        }
-        Set<String> nameSet = ms.getJobs().stream().map(j->j.getName()).collect(Collectors.toSet());
-        assertEquals(nameSet.containsAll(jobNames),jobNames.containsAll(nameSet));
-        for(int i = 10; i < 20; i++) {
-            String jobName = "wahJob"+Integer.toString(i);
-            jobNames.add(jobName);
-            ms.registerJob(jobDefSt+jobName+jobDefEnd);
-        }
-        nameSet = ms.getJobs().stream().map(j->j.getName()).collect(Collectors.toSet());
-        assertEquals(nameSet.containsAll(jobNames),jobNames.containsAll(nameSet));
+    Set<String> nameSet = ms.getJobs().stream().map(Job::getName).collect(Collectors.toSet());
+    assertEquals(jobNames.containsAll(nameSet), nameSet.containsAll(jobNames));
+    for (int i = 10; i < 20; i++) {
+      String jobName = "wahJob" + i;
+      jobNames.add(jobName);
+      ms.registerJob(jobDefSt + jobName + jobDefEnd);
     }
+    nameSet = ms.getJobs().stream().map(Job::getName).collect(Collectors.toSet());
+    assertTrue(nameSet.containsAll(jobNames));
+    assertTrue(jobNames.containsAll(nameSet));
+  }
 }

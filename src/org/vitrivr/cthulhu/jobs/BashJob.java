@@ -14,16 +14,13 @@ public class BashJob extends Job {
   }
 
   protected BashJob(String action) {
-    super();
-    this.action = action;
-    this.type = "BashJob";
+    this(action, 2);
   }
 
   protected BashJob(String action, int priority) {
     super();
     this.action = action;
     this.priority = priority;
-    this.type = "BashJob";
   }
 
   public int execute() {
