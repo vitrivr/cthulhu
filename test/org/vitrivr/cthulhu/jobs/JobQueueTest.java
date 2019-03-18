@@ -1,13 +1,13 @@
 package org.vitrivr.cthulhu.jobs;
 
-import static org.junit.Assert.assertEquals;
+import static junit.framework.Assert.assertEquals;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class JobQueueTest {
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpBeforeClass() {
   }
 

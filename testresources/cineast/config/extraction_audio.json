@@ -1,0 +1,28 @@
+{
+  "type":"AUDIO",
+  "input":{
+    "path": "/path/to/data/music/",
+    "depth": 2,
+    "skip": 0,
+    "id": {
+      "name": "UniqueObjectIdGenerator",
+      "properties": {}
+    }
+  },
+  "extractors":[
+    {"name": "AudioFingerprint"},
+    {"name": "AverageHPCP20F36B"},
+    {"name": "AverageHPCP30F36B"},
+    {"name": "CENS12Shingle"},
+    {"name": "HPCP12Shingle"},
+    {"name": "MFCCShingle"}
+  ],
+  "exporters":[
+    {
+      "name": "AudioWaveformExporter",
+      "properties": {
+        "destination":"/path/to/thumbnails/"
+      }
+    }
+  ]
+}

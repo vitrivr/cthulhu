@@ -1,6 +1,6 @@
 package org.vitrivr.cthulhu.jobs;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -12,10 +12,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.vitrivr.cthulhu.cineast.config.CineastConfig;
 import org.vitrivr.cthulhu.runners.CthulhuRunner;
 
@@ -24,7 +23,7 @@ public class FeatureExtractionJobTest {
   private static JobFactory jf;
   private static JobTools mockTools;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpBeforeClass() throws Exception {
     Properties props = new Properties();
     try {
@@ -47,10 +46,6 @@ public class FeatureExtractionJobTest {
     when(mockTools.setWorkingDirectory(any())).thenCallRealMethod();
     mockTools.lg = jt.lg;
     mockTools.props = jt.props;
-  }
-
-  @AfterClass
-  public static void tearDownAfterClass() {
   }
 
   private String readWholeFile(String jsonFile) throws IOException {
@@ -102,7 +97,7 @@ public class FeatureExtractionJobTest {
    * @throws IOException when the json file specified doesn't exist
    */
   @Test
-  @Ignore
+  @Disabled
   public void withValidConfFile() throws IOException {
     String json = readWholeFile("full_fe_job.json");
     FeatureExtractionJob jb = (FeatureExtractionJob) jf.buildJob(json);
