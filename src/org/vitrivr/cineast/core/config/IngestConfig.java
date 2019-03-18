@@ -70,36 +70,3 @@ public class IngestConfig {
     return pipeline;
   }
 }
-/*
-    {
-        "type": "VIDEO",
-        "input": {
-            "path": "/path/to/data/videos/",
-            "depth": 2,
-            "skip": 0,
-            "id": {
-                "name": "UniqueObjectIdGenerator",
-                "properties": {}
-            }
-        },
-        "extractors": [
-            { "name": "AverageColor" },
-            { "name": "AverageColorRaster" },
-            { "name": "CLD" },
-            { "name": "EdgeGrid16" },
-            { "name": "EHD" },
-            { "name": "DominantEdgeGrid16" },
-            { "name": "SubDivMotionHistogram5" },
-            { "name": "SubDivMotionHistogramBackground5" },
-            { "name": "HOGMirflickr25K512" },
-            { "name": "SURFMirflickr25K512" }
-        ],
-        "exporters": [{
-            "name": "ShotThumbNails",
-            "properties": {
-                "destination": "/path/to/thumbnails/"
-            }
-        }]
-    }
-
- */
