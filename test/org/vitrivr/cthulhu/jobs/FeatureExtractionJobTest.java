@@ -17,6 +17,7 @@ import java.io.Reader;
 
 import org.apache.commons.io.IOUtils;
 
+import org.vitrivr.cthulhu.cineast.config.CineastConfig;
 import org.vitrivr.cthulhu.runners.CthulhuRunner;
 
 import com.google.gson.*;
