@@ -1,0 +1,27 @@
+{
+  "type":"MODEL3D",
+  "input":{
+    "path": "/path/to/data/3d/",
+    "depth": 2,
+    "skip": 0,
+    "id": {
+      "name": "UniqueObjectIdGenerator",
+      "properties": {}
+    }
+  },
+  "extractors":[
+    {"name": "LightfieldFourier"},
+    {"name": "LightfieldZernike"},
+    {"name": "SphericalHarmonicsDefault"},
+    {"name": "SphericalHarmonicsLow"},
+    {"name": "SphericalHarmonicsHigh"}
+  ],
+  "exporters":[
+    {
+      "name": "Model3DThumbnailExporter",
+      "properties": {
+        "destination":"/path/to/thumbnails/"
+      }
+    }
+  ]
+}
