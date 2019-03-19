@@ -53,15 +53,19 @@ public class DatabaseConfig {
   }
 
   public enum Writer {
+    NONE,
     PROTO,
     JSON,
-    ADAMPRO
+    ADAMPRO,
+    COTTONTAIL
   }
 
   public enum Selector {
     NONE,
     JSON,
     PROTO,
-    ADAMPRO
+    ADAMPRO,
+    ADAMPROSTREAM,
+    COTTONTAIL
   }
 }

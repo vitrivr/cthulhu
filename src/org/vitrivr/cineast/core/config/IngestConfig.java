@@ -28,7 +28,8 @@ public class IngestConfig {
       @JsonProperty("exporters") List<MetadataConfig> exporters,
       @JsonProperty("metadata") List<MetadataConfig> metadata,
       @JsonProperty("database") DatabaseConfig database,
-      @JsonProperty("pipeline") ExtractionPipelineConfig pipeline) {
+      @JsonProperty("pipeline") ExtractionPipelineConfig pipeline,
+      @JsonProperty("segmenter") MetadataConfig segmenter) {
     this.type = type;
     this.input = input;
     this.extractors = extractors;
