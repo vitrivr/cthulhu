@@ -1,8 +1,8 @@
 package org.vitrivr.cthulhu.scheduler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.jobs.JobAdapter;
 import org.vitrivr.cthulhu.jobs.JobFactory;
@@ -27,7 +27,7 @@ public class CoordinatorSchedulerTest {
 
   private static JobFactory jf;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupBeforeClass() {
     jf = new JobFactory();
   }

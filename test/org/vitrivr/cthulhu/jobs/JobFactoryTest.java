@@ -1,22 +1,18 @@
 package org.vitrivr.cthulhu.jobs;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonParseException;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class JobFactoryTest {
 
   private static JobFactory jf;
-  @Rule
-  public final ExpectedException exception = ExpectedException.none();
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpBeforeClass() {
     jf = new JobFactory();
   }
@@ -52,14 +48,12 @@ public class JobFactoryTest {
   @Test
   public void typelessJob() {
     String json = "{\"priority\":3}";
-    exception.expect(JsonParseException.class);
-    jf.buildJob(json);
+    assertThrows(JsonParseException.class, () -> jf.buildJob(json));
   }
 
   @Test
   public void malformedJob() {
     String json = "Paoufbivsett}";
-    exception.expect(JsonParseException.class);
-    jf.buildJob(json);
+    assertThrows(JsonParseException.class, () -> jf.buildJob(json));
   }
 }

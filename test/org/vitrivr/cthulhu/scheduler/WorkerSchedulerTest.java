@@ -1,17 +1,16 @@
 package org.vitrivr.cthulhu.scheduler;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.vitrivr.cthulhu.jobs.Job;
-import org.vitrivr.cthulhu.jobs.JobFactory;
 
 public class WorkerSchedulerTest {
 
   private static CthulhuScheduler ms;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupBeforeClass() {
     ms = new WorkerScheduler(null, true); // Do not register
   }

@@ -1,0 +1,51 @@
+{
+  "type":"VIDEO",
+  "input":{
+    "path": "/path/to/data/videos/",
+    "depth": 2,
+    "skip": 0,
+    "id": {
+      "name": "UniqueObjectIdGenerator",
+      "properties": {}
+    }
+  },
+  "extractors":[
+    {"name": "AverageColor"},
+    {"name": "AverageColorGrid8Reduced11"},
+    {"name": "AverageColorGrid8Reduced15"},
+    {"name": "AverageColorRaster"},
+    {"name": "AverageColorRasterReduced11"},
+    {"name": "AverageColorRasterReduced15"},
+    {"name": "AverageFuzzyHist"},
+    {"name": "AverageFuzzyHistNormalized"},
+    {"name": "CLDReduced11"},
+    {"name": "CLDReduced15"},
+    {"name": "EdgeARP88"},
+    {"name": "EdgeGrid16"},
+    {"name": "EHD"},
+    {"name": "DominantEdgeGrid16"},
+    {"name": "DominantEdgeGrid8"},
+    {"name": "MedianColor"},
+    {"name": "MedianFuzzyHist"},
+    {"name": "SubDivMotionHistogram3"},
+    {"name": "SubDivMotionHistogram5"},
+    {"name": "SubDivMotionHistogramBackground3"},
+    {"name": "SubDivMotionHistogramBackground5"},
+    {"name": "HOGMirflickr25K512"},
+    {"name": "SURFMirflickr25K512"},
+    {"name": "AudioFingerprint"},
+    {"name": "AverageHPCP20F36B"},
+    {"name": "AverageHPCP30F36B"},
+    {"name": "CENS12Shingle"},
+    {"name": "HPCP12Shingle"},
+    {"name": "MFCCShingle"}
+  ],
+  "exporters":[
+    {
+      "name": "ShotThumbNails",
+      "properties": {
+        "destination":"/path/to/thumbnails/"
+      }
+    }
+  ]
+}

@@ -1,23 +1,22 @@
 package org.vitrivr.cthulhu.scheduler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.vitrivr.cthulhu.jobs.BashJob;
 import org.vitrivr.cthulhu.jobs.Job;
-import org.vitrivr.cthulhu.jobs.JobFactory;
 
 public class CthulhuSchedulerTest {
 
   private static CthulhuScheduler ms;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupBeforeClass() {
     ms = new CoordinatorScheduler(null);
   }
