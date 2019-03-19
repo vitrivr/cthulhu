@@ -21,14 +21,14 @@ public class IngestConfig {
   private final ExtractionPipelineConfig pipeline;
 
   @JsonCreator
-  public IngestConfig(
-      @JsonProperty("type") MediaType type,
-      @JsonProperty("input") InputConfig input,
-      @JsonProperty("extractors") List<MetadataConfig> extractors,
-      @JsonProperty("exporters") List<MetadataConfig> exporters,
-      @JsonProperty("metadata") List<MetadataConfig> metadata,
-      @JsonProperty("database") DatabaseConfig database,
-      @JsonProperty("pipeline") ExtractionPipelineConfig pipeline) {
+  public IngestConfig(@JsonProperty(value = "type") MediaType type,
+                      @JsonProperty(value = "input", required = true) InputConfig input,
+                      @JsonProperty(value = "extractors") List<MetadataConfig> extractors,
+                      @JsonProperty(value = "exporters") List<MetadataConfig> exporters,
+                      @JsonProperty(value = "metadata") List<MetadataConfig> metadata,
+                      @JsonProperty(value = "database") DatabaseConfig database,
+                      @JsonProperty(value = "pipeline") ExtractionPipelineConfig pipeline,
+                      @JsonProperty(value = "segmenter") MetadataConfig segmenter) {
     this.type = type;
     this.input = input;
     this.extractors = extractors;
