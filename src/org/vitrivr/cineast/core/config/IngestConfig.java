@@ -19,6 +19,7 @@ public class IngestConfig {
   private final List<MetadataConfig> metadata;
   private final DatabaseConfig database;
   private final ExtractionPipelineConfig pipeline;
+  private final MetadataConfig segmenter;
 
   @JsonCreator
   public IngestConfig(
@@ -37,6 +38,7 @@ public class IngestConfig {
     this.metadata = metadata;
     this.database = database;
     this.pipeline = pipeline;
+    this.segmenter = segmenter;
   }
 
   public static Logger getLOGGER() {
@@ -69,5 +71,9 @@ public class IngestConfig {
 
   public ExtractionPipelineConfig getPipeline() {
     return pipeline;
+  }
+
+  public MetadataConfig getSegmenter() {
+    return segmenter;
   }
 }
