@@ -31,6 +31,10 @@ public class JobTools {
     return props.getProperty("cineast_dir");
   }
 
+  public String getCineastConfigLocation() {
+    return props.getProperty("cineast_config_dir");
+  }
+
   public String getJavaFlags() {
     return props.getProperty("cineast_java_flags", "");
   }

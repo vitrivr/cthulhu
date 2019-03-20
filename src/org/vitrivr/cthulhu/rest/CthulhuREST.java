@@ -11,12 +11,14 @@ import static spark.Spark.stop;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Properties;
 import javax.servlet.MultipartConfigElement;
 import org.apache.logging.log4j.LogManager;
@@ -33,6 +35,7 @@ public class CthulhuREST {
   private CthulhuScheduler ms;
   private Logger LOGGER = LogManager.getLogger("r.m.api");
   private ObjectMapper mapper;
+  private Gson gson;
 
   public CthulhuREST() {
     this.mapper = new ObjectMapper()
@@ -50,6 +53,7 @@ public class CthulhuREST {
    *     (worker/coord)
    */
   public void init(CthulhuScheduler ms, Properties prop) {
+    this.gson = new Gson();
     this.ms = ms;
     LOGGER.info("Creating REST paths");
     String sf = prop.getProperty("staticfiles");
@@ -87,7 +91,7 @@ public class CthulhuREST {
       ms.registerJob(requestJob);
       return "";
     });
-    get("/jobs", (req, res) -> ms.getJobs());
+    get("/jobs", (req, res) -> ms.getJobs() );
     get("/jobsjackson", (req, res) -> mapper.writeValueAsString(ms.getJobs()));
     get("/jobs/:id", (req, res) -> {
       String id = req.params(":id");
