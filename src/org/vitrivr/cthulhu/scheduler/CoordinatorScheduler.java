@@ -25,7 +25,7 @@ public class CoordinatorScheduler extends CthulhuScheduler {
     this(null);
   }
 
-  public CoordinatorScheduler(Properties props) {
+  CoordinatorScheduler(Properties props) {
     super(props);
     wt = new ConcurrentHashMap<>();
 
@@ -49,7 +49,7 @@ public class CoordinatorScheduler extends CthulhuScheduler {
     }
   }
 
-  public Worker getRunningWorker(Job job) {
+  private Worker getRunningWorker(Job job) {
     return wt.entrySet()
         .stream()
         .filter(entry -> entry.getValue().hasJob(job.getName()))
@@ -129,10 +129,10 @@ public class CoordinatorScheduler extends CthulhuScheduler {
       recoveredJobs.get(wId).forEach(j -> {
         // If it finished running (by failing, succeeding or being interrupted),
         // we need only replace it on the job hash map
-        if (j.getStatus() == Job.Status.SUCCEEDED.getValue() ||
-            j.getStatus() == Job.Status.FAILED.getValue() ||
-            j.getStatus() == Job.Status.INTERRUPTED.getValue() ||
-            j.getStatus() == Job.Status.UNEXPECTED_ERROR.getValue()) {
+        if (j.getStatusValue() == Job.Status.SUCCEEDED.getValue() ||
+            j.getStatusValue() == Job.Status.FAILED.getValue() ||
+            j.getStatusValue() == Job.Status.INTERRUPTED.getValue() ||
+            j.getStatusValue() == Job.Status.UNEXPECTED_ERROR.getValue()) {
           jt.put(j.getName(), j);
           // We mark it as removed from the worker (because it's done)
           w.removeJob(j.getName());
@@ -146,14 +146,13 @@ public class CoordinatorScheduler extends CthulhuScheduler {
 
         /* Otherwise, the state of the job is inconsistent, and it should be reviewed */
         lg.error("Inconsistent state for job {}. Coord status: {}. Worker status: {}",
-                 j.getName(), w.getJob(j.getName()).getStatus(), j.getStatus());
+                 j.getName(), w.getJob(j.getName()).getStatusValue(), j.getStatusValue());
       });
 
     });
     // 4. Finally, we add all waiting jobs to the job queue.
-    jt.entrySet().stream()
-        .map(Entry::getValue)
-        .filter(j -> j.getStatus() == Job.Status.WAITING.getValue())
+    jt.values().stream()
+        .filter(j -> j.getStatusValue() == Job.Status.WAITING.getValue())
         .forEach(j -> {
           jq.push(j);
           lg.trace("Inserting job {} to job queue", j.getName());
@@ -162,7 +161,7 @@ public class CoordinatorScheduler extends CthulhuScheduler {
     lg.info("Done restoring the coordinator status");
   }
 
-  public void runDispatch() {
+  private void runDispatch() {
     // 1. The first stage of the dispatching cycle is to update jobs that have
     //    finished running
 

@@ -8,10 +8,11 @@ import static spark.Spark.put;
 import static spark.Spark.staticFileLocation;
 import static spark.Spark.stop;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,7 @@ import java.util.Properties;
 import javax.servlet.MultipartConfigElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.vitrivr.cthulhu.jobs.CineastJob;
 import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.jobs.util.StreamUtils;
 import org.vitrivr.cthulhu.scheduler.CthulhuScheduler;
@@ -30,11 +32,13 @@ public class CthulhuREST {
   private String workspace;
   private CthulhuScheduler ms;
   private Logger LOGGER = LogManager.getLogger("r.m.api");
-  /**
-   * A gson instance to convert to JSON and to Job objects (or others) when exchanging data with
-   * another host.
-   */
-  private Gson gson;
+  private ObjectMapper mapper;
+
+  public CthulhuREST() {
+    this.mapper = new ObjectMapper()
+        .registerModule(new JavaTimeModule())
+        .registerModule(new Jdk8Module());
+  }
 
   /**
    * Initializes all the REST services for this agent (worker/coordinator)
@@ -47,7 +51,6 @@ public class CthulhuREST {
    */
   public void init(CthulhuScheduler ms, Properties prop) {
     this.ms = ms;
-    gson = new Gson();
     LOGGER.info("Creating REST paths");
     String sf = prop.getProperty("staticfiles");
     workspace = prop.getProperty("workspace");
@@ -65,70 +68,10 @@ public class CthulhuREST {
     stop();
   }
 
-  public void setupRESTCalls(String staticFilesDir, int listenPort) {
+  private void setupRESTCalls(String staticFilesDir, int listenPort) {
     port(listenPort);
     LOGGER.info("Static files are served from: " + staticFilesDir);
     staticFileLocation(staticFilesDir);
-    get("/data/*", (req, res) -> {
-      String fname = req.pathInfo().replaceFirst("/data/", "");
-      fname = fname.replace("../", "/");
-      InputStream is;
-      try {
-        File infile = new File(workspace, fname);
-        is = new FileInputStream(infile);
-        if (is != null) {
-          //res.type(getContentType(fname));
-          res.status(200);
-
-          byte[] buf = new byte[1024];
-          OutputStream os = res.raw().getOutputStream();
-          int count = 0;
-          while ((count = is.read(buf)) >= 0) {
-            os.write(buf, 0, count);
-          }
-          is.close();
-          os.close();
-        }
-      } catch (IOException e) {
-        e.printStackTrace();
-        return null;
-      }
-      return "";
-    });
-    get("/jobs/:id", (req, res) -> {
-      String id = req.params(":id");
-      if (id.isEmpty()) {
-        res.status(400);
-      }
-      return gson.toJson(ms.getJobs(id));
-    });
-    get("/jobs", (req, res) -> gson.toJson(ms.getJobs()));
-    get("/workers/:id", (req, res) -> {
-      String id = req.params(":id");
-      if (id.isEmpty()) {
-        res.status(400);
-      }
-      return gson.toJson(ms.getWorkers(id));
-    });
-    get("/workers", (req, res) -> gson.toJson(ms.getWorkers()));
-    post("/data/*", (req, res) -> {
-      String fname = req.pathInfo().replaceFirst("/data/", "");
-      fname = fname.replace("../", "/");
-      System.out.println("Receiving a file back: " + fname);
-      File fout = new File(workspace, fname);
-      if (fout.exists()) {
-        System.out.println("File exists. Not saving");
-        res.status(400);
-        //return "";
-      }
-      req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/temp"));
-      try (InputStream is = req.raw().getPart("file").getInputStream()) {
-        // Use the input stream to create a file
-        FileOutputStream fos = new FileOutputStream(fout);
-        StreamUtils.copy(is, fos);
-      }
-      return "";
-    });
     post("/jobs", (req, res) -> {
       Job j = ms.registerJob(req.body());
       if (j == null) {
@@ -136,20 +79,30 @@ public class CthulhuREST {
       }
       return "";
     });
-    post("/workers", (req, res) -> {
-      String address = req.queryParams("address");
-      int port = Integer.parseInt(req.queryParams("port"));
-      String ip = req.ip();
-      if (address == null || address.isEmpty()) {
-        address = ip;
+    post("/jobs/cineast", (req, res) -> {
+      Job requestJob = mapper.readValue(req.body(), CineastJob.class);
+      if (requestJob == null) {
+        res.status(400);
       }
-      int st = ms.registerWorker(address, port);
-      if (st != 0) {
+      ms.registerJob(requestJob);
+      return "";
+    });
+    get("/jobs", (req, res) -> ms.getJobs());
+    get("/jobsjackson", (req, res) -> mapper.writeValueAsString(ms.getJobs()));
+    get("/jobs/:id", (req, res) -> {
+      String id = req.params(":id");
+      if (id.isEmpty()) {
+        res.status(400);
+      }
+      return ms.getJobs(id);
+    });
+    put("/jobs", (req, res) -> {
+      Job old = ms.updateJob(req.body());
+      if (old == null) {
         res.status(400);
       }
       return "";
     });
-
     delete("/jobs/:id", (req, res) -> {
       String id = req.params(":id");
       boolean force = false;
@@ -170,6 +123,27 @@ public class CthulhuREST {
       }
       return "";
     });
+    post("/workers", (req, res) -> {
+      String address = req.queryParams("address");
+      int port = Integer.parseInt(req.queryParams("port"));
+      String ip = req.ip();
+      if (address == null || address.isEmpty()) {
+        address = ip;
+      }
+      int st = ms.registerWorker(address, port);
+      if (st != 0) {
+        res.status(400);
+      }
+      return "";
+    });
+    get("/workers", (req, res) -> ms.getWorkers());
+    get("/workers/:id", (req, res) -> {
+      String id = req.params(":id");
+      if (id.isEmpty()) {
+        res.status(400);
+      }
+      return ms.getWorkers(id);
+    });
     delete("/workers/:id", (req, res) -> {
       String id = req.params(":id");
       Worker worker = ms.deleteWorker(id);
@@ -178,10 +152,45 @@ public class CthulhuREST {
       }
       return "";
     });
-    put("/jobs", (req, res) -> {
-      Job old = ms.updateJob(req.body());
-      if (old == null) {
+    post("/data/*", (req, res) -> {
+      String fname = req.pathInfo().replaceFirst("/data/", "");
+      fname = fname.replace("../", "/");
+      System.out.println("Receiving a file back: " + fname);
+      File fout = new File(workspace, fname);
+      if (fout.exists()) {
+        System.out.println("File exists. Not saving");
         res.status(400);
+        //return "";
+      }
+      req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/temp"));
+      try (InputStream is = req.raw().getPart("file").getInputStream()) {
+        // Use the input stream to create a file
+        FileOutputStream fos = new FileOutputStream(fout);
+        StreamUtils.copy(is, fos);
+      }
+      return "";
+    });
+    get("/data/*", (req, res) -> {
+      String fname = req.pathInfo().replaceFirst("/data/", "");
+      fname = fname.replace("../", "/");
+      InputStream is;
+      try {
+        File infile = new File(workspace, fname);
+        is = new FileInputStream(infile);
+        //res.type(getContentType(fname));
+        res.status(200);
+
+        byte[] buf = new byte[1024];
+        OutputStream os = res.raw().getOutputStream();
+        int count;
+        while ((count = is.read(buf)) >= 0) {
+          os.write(buf, 0, count);
+        }
+        is.close();
+        os.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+        return null;
       }
       return "";
     });
