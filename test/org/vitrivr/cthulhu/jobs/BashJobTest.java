@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class BashJobTest {
+class BashJobTest {
 
   private void runCheck(String command, String stdOut) {
     runCheck(command, stdOut, null);
@@ -22,12 +22,12 @@ public class BashJobTest {
   }
 
   @Test
-  public void RunEcho() {
+  void RunEcho() {
     runCheck("echo pablo", "pablo\n");
   }
 
   @Test
-  public void RunLarge() {
+  void RunLarge() {
     String twoEcho =
         "echo pablo\n" +
             "echo was\n" +

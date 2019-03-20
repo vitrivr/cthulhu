@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
-public class CthulhuRunnerTest {
+class CthulhuRunnerTest {
 
   @Test
-  public void pickInetAddressIsSuccessful() throws UnknownHostException {
+  void pickInetAddressIsSuccessful() throws UnknownHostException {
     // GIVEN - IPv4 and IPv6 addressed
     // 35f1:b02f:8843:9abb:82bf:967a:34f5:ed8b
     byte[] ipv6 = new byte[] {(byte) 0x35, (byte) 0xf1, (byte) 0xb0, (byte) 0x2f, (byte) 0x88,

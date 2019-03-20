@@ -23,12 +23,12 @@ import org.vitrivr.cthulhu.jobs.JobFactory;
 import org.vitrivr.cthulhu.rest.CthulhuRESTConnector;
 import org.vitrivr.cthulhu.worker.Worker;
 
-public class CoordinatorSchedulerTest {
+class CoordinatorSchedulerTest {
 
   private static JobFactory jf;
 
   @BeforeAll
-  public static void setupBeforeClass() {
+  static void setupBeforeClass() {
     jf = new JobFactory();
   }
 
@@ -98,18 +98,18 @@ public class CoordinatorSchedulerTest {
     assertEquals(0, rs.jq.size()); // No jobs on the queue
     assertEquals(
         Job.Status.RUNNING.getValue(),
-        rs.getJobs().get(0).getStatus()); // Before checking job is running
+        rs.getJobs().get(0).getStatusValue()); // Before checking job is running
 
     rs.restoreStatus();
     //System.out.println(gson.toJson(rs));
     assertEquals(1, rs.getJobs().size()); // Restoring a single job
     assertEquals(finalJQSize, rs.jq.size()); // No jobs added to the queue
-    assertEquals(jobStatus, rs.getJobs().get(0).getStatus()); // Before checking job is DONE
+    assertEquals(jobStatus, rs.getJobs().get(0).getStatusValue()); // Before checking job is DONE
     return rs;
   }
 
   @Test
-  public void restoreTestSimple() throws Exception {
+  void restoreTestSimple() throws Exception {
     /* RESTORING Two waiting jobs, and no workers at all
      * RESULT: Both are added to the job queue and that's it
      *
@@ -124,7 +124,7 @@ public class CoordinatorSchedulerTest {
   }
 
   @Test
-  public void restoreTestJobDone() throws Exception {
+  void restoreTestJobDone() throws Exception {
     /* RESTORING: Coord restore: One running job in one worker
      * Worker responds: Running job has SUCCEEDED, then INTERRUPTED, then FAILED, then ERROR
      * RESULT: Job is saved as having succeeded and so on.
@@ -139,7 +139,7 @@ public class CoordinatorSchedulerTest {
   }
 
   @Test
-  public void restoreTestJobRunDone() throws Exception {
+  void restoreTestJobRunDone() throws Exception {
     /* RESTORING: Coord restore: Two running jobs in same worker
      * Worker responds: One running job has succeeded, the other has failed
      * RESULT: Both are saved as failed and succeeded, and not put in the job queue
@@ -157,24 +157,24 @@ public class CoordinatorSchedulerTest {
         Job.Status.RUNNING.getValue(),
         Job.Status.RUNNING.getValue(),
         Job.Status.WAITING.getValue()));
-    Set<Integer> rsSt = rs.getJobs().stream().map(Job::getStatus).collect(Collectors.toSet());
+    Set<Integer> rsSt = rs.getJobs().stream().map(Job::getStatusValue).collect(Collectors.toSet());
     assertTrue(rsSt.containsAll(st));
     assertEquals(st.size(), rsSt.size());
     rs.restoreStatus();
     assertEquals(1, rs.jq.size()); // No jobs on the queue
-    rsSt = rs.getJobs().stream().map(Job::getStatus).collect(Collectors.toSet());
+    rsSt = rs.getJobs().stream().map(Job::getStatusValue).collect(Collectors.toSet());
     st = new HashSet<>(Arrays.asList(
         Job.Status.RUNNING.getValue(),
         Job.Status.SUCCEEDED.getValue(),
         Job.Status.WAITING.getValue()));
     assertTrue(rsSt.containsAll(st));
     assertEquals(st.size(), rsSt.size());
-    assertEquals(Job.Status.SUCCEEDED.getValue(), rs.getJobs("pabs2").getStatus());
-    assertEquals(Job.Status.RUNNING.getValue(), rs.getJobs("pabs").getStatus());
+    assertEquals(Job.Status.SUCCEEDED.getValue(), rs.getJobs("pabs2").getStatusValue());
+    assertEquals(Job.Status.RUNNING.getValue(), rs.getJobs("pabs").getStatusValue());
   }
 
   @Test
-  public void restoreTestWorkerLost() throws Exception {
+  void restoreTestWorkerLost() throws Exception {
     /* RESTORING: Coord restore: Two running jobs in two different workers
      * Worker 1 responds: One running job is still running
      * Worker 2 does not respond: We assume that its job has been lost
@@ -196,7 +196,7 @@ public class CoordinatorSchedulerTest {
         Job.Status.RUNNING.getValue(),
         Job.Status.RUNNING.getValue(),
         Job.Status.WAITING.getValue()));
-    Set<Integer> rsSt = rs.getJobs().stream().map(Job::getStatus).collect(Collectors.toSet());
+    Set<Integer> rsSt = rs.getJobs().stream().map(Job::getStatusValue).collect(Collectors.toSet());
     assertTrue(rsSt.containsAll(st));
     assertEquals(st.size(), rsSt.size());
     //System.out.println(gson.toJson(rs));
@@ -206,14 +206,14 @@ public class CoordinatorSchedulerTest {
     assertNull(rs.getWorkers("147.46.117.72:8083"));
     assertEquals("147.46.117.72:8081", rs.getWorkers("147.46.117.72:8081").getId());
     assertEquals(2, rs.jq.size()); // Two jobs on the queue
-    rsSt = rs.getJobs().stream().map(Job::getStatus).collect(Collectors.toSet());
+    rsSt = rs.getJobs().stream().map(Job::getStatusValue).collect(Collectors.toSet());
     st = new HashSet<>(Arrays.asList(
         Job.Status.RUNNING.getValue(),
         Job.Status.WAITING.getValue(),
         Job.Status.WAITING.getValue()));
     assertTrue(rsSt.containsAll(st));
     assertEquals(rsSt.size(), st.size());
-    assertEquals(Job.Status.WAITING.getValue(), rs.getJobs("pabs2").getStatus());
-    assertEquals(Job.Status.RUNNING.getValue(), rs.getJobs("pabs").getStatus());
+    assertEquals(Job.Status.WAITING.getValue(), rs.getJobs("pabs2").getStatusValue());
+    assertEquals(Job.Status.RUNNING.getValue(), rs.getJobs("pabs").getStatusValue());
   }
 }

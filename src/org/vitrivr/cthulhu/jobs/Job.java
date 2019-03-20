@@ -1,5 +1,10 @@
 package org.vitrivr.cthulhu.jobs;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.Gson;
 import java.time.LocalDateTime;
 
@@ -8,20 +13,21 @@ import java.time.LocalDateTime;
  */
 abstract public class Job implements Comparable<Job> {
 
+  protected int priority = 2; // Default priority is 2
   String stdOut;
   String stdErr;
   transient JobTools tools;
   String type;
   String name;
-  String action;
   /**
    * Documents the status of the job. Possible statuses are:
    * <b>SUCCEEDED, FAILED, WAITING, INTERRUPTED, UNEXPECTED_ERROR, RUNNING</b>;
    * where each one should be self-explanatory.
    */
   Status status = Status.WAITING;
+  @JsonFormat(shape = Shape.STRING, pattern = "dd/MM/yyyy - hh:mm:ss")
   private LocalDateTime created_at;
-  int priority = 2; // Default priority is 2
+
   /**
    * Creates a job without arguments
    */
@@ -29,7 +35,21 @@ abstract public class Job implements Comparable<Job> {
     created_at = LocalDateTime.now();
   }
 
-  protected void setTools(JobTools tools) {
+  @JsonCreator()
+  public Job(
+      @JsonProperty("type") String type,
+      @JsonProperty("name") String name,
+      @JsonProperty("status") Status status,
+      @JsonProperty("priority") int priority,
+      @JsonProperty("created_at") LocalDateTime created_at) {
+    this.type = type;
+    this.name = name;
+    this.status = status;
+    this.priority = priority;
+    this.created_at = created_at;
+  }
+
+  void setTools(JobTools tools) {
     this.tools = tools;
   }
 
@@ -47,6 +67,7 @@ abstract public class Job implements Comparable<Job> {
    *
    * @return True if the job is running, false otherwise.
    */
+  @JsonIgnore
   public boolean isRunning() {
     return status == Status.RUNNING;
   }
@@ -67,8 +88,19 @@ abstract public class Job implements Comparable<Job> {
    *
    * @return An integer representing the value of the job status see {@link Status Status}.
    */
-  public int getStatus() {
+  @JsonIgnore
+  public int getStatusValue() {
     return status.getValue();
+  }
+
+  /**
+   * Returns the status of a job
+   * <p>
+   *
+   * @return An string representing the value of the job status see {@link Status Status}.
+   */
+  public String getStatus() {
+    return status.toString();
   }
 
   /**
@@ -98,16 +130,6 @@ abstract public class Job implements Comparable<Job> {
   }
 
   /**
-   * Returns the action property of the job. The main action of it.
-   * <p>
-   *
-   * @return the action property of the job
-   */
-  public String getAction() {
-    return action;
-  }
-
-  /**
    * Returns the priority of the job.
    * <p>
    *
@@ -133,6 +155,7 @@ abstract public class Job implements Comparable<Job> {
    *
    * @return true if the job status is WAITING, false otherwise
    */
+  @JsonIgnore
   public boolean isWaiting() {
     return this.status == Status.WAITING;
   }
@@ -189,6 +212,20 @@ abstract public class Job implements Comparable<Job> {
     return -1;
   }
 
+  /**
+   * Returns the standard output of a job after it ran
+   */
+  String getStdOut() {
+    return stdOut;
+  }
+
+  /**
+   * Returns the standard error stream contents of a job after it ran
+   */
+  String getStdErr() {
+    return stdErr;
+  }
+
   public enum Status {
     SUCCEEDED(0),  // Failure in the job
     FAILED(1),   // Job failed while running
@@ -205,19 +242,5 @@ abstract public class Job implements Comparable<Job> {
     public int getValue() {
       return value;
     }
-  }
-
-  /**
-   * Returns the standard output of a job after it ran
-   */
-  String getStdOut() {
-    return stdOut;
-  }
-
-  /**
-   * Returns the standard error stream contents of a job after it ran
-   */
-  String getStdErr() {
-    return stdErr;
   }
 }

@@ -9,6 +9,8 @@ import org.apache.commons.io.IOUtils;
 
 public class BashJob extends Job {
 
+  private String action;
+
   protected BashJob() {
     super();
   }
@@ -49,5 +51,15 @@ public class BashJob extends Job {
       status = Job.Status.INTERRUPTED;
     }
     return status.getValue();
+  }
+
+  /**
+   * Returns the action property of the job. The main action of it.
+   * <p>
+   *
+   * @return the action property of the job
+   */
+  public String getAction() {
+    return action;
   }
 }

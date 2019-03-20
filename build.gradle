@@ -10,6 +10,7 @@ repositories {
    }
 }
 
+sourceCompatibility = 1.8
 compileJava.options.encoding = 'UTF-8'
 
 dependencies {
@@ -21,8 +22,10 @@ dependencies {
     implementation group: 'com.google.code.gson', name: 'gson', version: '1.7.2'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.5'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.5'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.8'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.9.8'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.8'
+
     implementation 'com.sparkjava:spark-core:2.3'
     implementation 'commons-io:commons-io:2.4'
 
@@ -54,7 +57,7 @@ sourceSets {
         resources {
             srcDir 'testresources'
         }
-    }    
+    }
 }
 
 mainClassName='org.vitrivr.cthulhu.runners.CthulhuRunner'
@@ -65,7 +68,7 @@ jar {
     }
     archiveName = 'cthulhu.jar'
     from ({
-         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } 
+         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }) {
              exclude '*workspace*'
          }

@@ -6,17 +6,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.vitrivr.cthulhu.jobs.Job;
 
-public class WorkerSchedulerTest {
+class WorkerSchedulerTest {
 
   private static CthulhuScheduler ms;
 
   @BeforeAll
-  public static void setupBeforeClass() {
+  static void setupBeforeClass() {
     ms = new WorkerScheduler(null, true); // Do not register
   }
 
   @Test
-  public void registerDeleteJob() {
+  void registerDeleteJob() {
     String jobDef = "{\"type\":\"BashJob\",\"action\":\"sleep 20\",\"name\":\"wahJob\"}";
     ms.registerJob(jobDef);
     Job jb;
