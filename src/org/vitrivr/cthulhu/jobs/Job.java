@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.Gson;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * The Job interface. Defines the basic methods for jobs to be manipulated.
@@ -37,11 +38,15 @@ abstract public class Job implements Comparable<Job> {
 
   @JsonCreator()
   public Job(
+      @JsonProperty("stdOut") String stdOut,
+      @JsonProperty("stdErr") String stdErr,
       @JsonProperty("type") String type,
       @JsonProperty("name") String name,
       @JsonProperty("status") Status status,
       @JsonProperty("priority") int priority,
       @JsonProperty("created_at") LocalDateTime created_at) {
+    this.stdOut = stdOut;
+    this.stdErr = stdErr;
     this.type = type;
     this.name = name;
     this.status = status;
@@ -80,6 +85,10 @@ abstract public class Job implements Comparable<Job> {
    */
   public boolean wasInterrupted() {
     return status == Status.INTERRUPTED;
+  }
+
+  void setStatus(Status newStatus) {
+    this.status = newStatus;
   }
 
   /**
@@ -224,6 +233,10 @@ abstract public class Job implements Comparable<Job> {
    */
   String getStdErr() {
     return stdErr;
+  }
+
+  Optional<JobTools> getTools() {
+    return Optional.ofNullable(tools);
   }
 
   public enum Status {

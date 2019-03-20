@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.vitrivr.cthulhu.jobs.Job;
+import org.vitrivr.cthulhu.jobs.Job.Status;
 import org.vitrivr.cthulhu.jobs.JobTools;
 import org.vitrivr.cthulhu.worker.Worker;
 
@@ -87,6 +88,7 @@ public class WorkerScheduler extends CthulhuScheduler {
     Thread t = new Thread(() -> {
       int result = 0;
       result = nextJob.execute();
+      System.out.println(result);
       String strResult = result == 0 ? "SUCCESS" : "FAILURE";
       strResult = nextJob.wasInterrupted() ? "INTERRUPTED" : strResult;
       lg.info("Job execution of job {} finalized with {}",
