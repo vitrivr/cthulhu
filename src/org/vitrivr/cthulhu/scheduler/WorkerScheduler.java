@@ -86,9 +86,8 @@ public class WorkerScheduler extends CthulhuScheduler {
            more sophisticaded execution logic, we'll use a  simple 
            lambda as the Runner interface passed to Thread t */
     Thread t = new Thread(() -> {
-      int result = 0;
+      int result;
       result = nextJob.execute();
-      System.out.println(result);
       String strResult = result == 0 ? "SUCCESS" : "FAILURE";
       strResult = nextJob.wasInterrupted() ? "INTERRUPTED" : strResult;
       lg.info("Job execution of job {} finalized with {}",

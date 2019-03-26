@@ -19,7 +19,6 @@ import org.vitrivr.cineast.core.config.IngestConfig;
 
 public class CineastJob extends Job {
 
-  private static transient int what = 0;
   private final UUID id;
   private IngestConfig config;
   private String workDir;
@@ -38,6 +37,13 @@ public class CineastJob extends Job {
     this.priority = priority;
   }
 
+  /**
+   * Saves the configuration to give to Cineast as a file
+   * @param config the config to give to Cineast
+   * @param outputPath where to save the file to
+   * @param id the job id used to avoid save overwrites
+   * @throws IOException if the file fails to save
+   */
   private static void saveConfigurationFile(IngestConfig config, String outputPath, UUID id)
       throws IOException {
     String destination = getConfigPath(outputPath, id);
@@ -48,11 +54,6 @@ public class CineastJob extends Job {
 
   private static String getConfigPath(String outputPath, UUID id) {
     return outputPath + id + "_config.json";
-  }
-
-  private static void boop() {
-    System.out.println("" + what);
-    what++;
   }
 
   @Override
@@ -83,6 +84,10 @@ public class CineastJob extends Job {
 
   }
 
+  /**
+   * If the work directory is not defined, it is set, then the work directory is returned
+   * @return the working directory to save files in
+   */
   private String getOrSetWorkDir() {
     if (workDir == null || workDir.isEmpty()) {
       tools.lg.info("Setting directory for Cineast job");
@@ -91,6 +96,13 @@ public class CineastJob extends Job {
     return workDir;
   }
 
+  /**
+   * Runs the Cineast jar and returns the status of the process on completion
+   * @param cineastDir
+   * @param cineastConf
+   * @param configFile
+   * @return
+   */
   private Status executeCineast(String cineastDir, String cineastConf, String configFile) {
     tools.lg.info("{} - Preparing to execute cineast", name);
     if (cineastDir == null || cineastDir.isEmpty()) {
