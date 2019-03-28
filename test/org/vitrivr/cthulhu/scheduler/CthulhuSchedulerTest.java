@@ -12,23 +12,24 @@ import org.junit.jupiter.api.Test;
 import org.vitrivr.cthulhu.jobs.BashJob;
 import org.vitrivr.cthulhu.jobs.Job;
 
-public class CthulhuSchedulerTest {
+class CthulhuSchedulerTest {
 
   private static CthulhuScheduler ms;
 
   @BeforeAll
-  public static void setupBeforeClass() {
+  static void setupBeforeClass() {
     ms = new CoordinatorScheduler(null);
   }
 
   @Test
-  public void registerDeleteJob() {
+  void registerDeleteJob() {
     String jobDef = "{\"type\":\"BashJob\",\"action\":\"echo wah\",\"name\":\"wahJob\"}";
     ms.registerJob(jobDef);
     Job jb = ms.getJobs("wahJob");
-    assertTrue(jb instanceof BashJob);
-    assertEquals("echo wah", jb.getAction());
     assertEquals(2, jb.getPriority()); // Default priority
+    assertTrue(jb instanceof BashJob);
+    BashJob bashJob = (BashJob) jb;
+    assertEquals("echo wah", bashJob.getAction());
 
     try {
       ms.deleteJob("wahJob");
@@ -38,7 +39,7 @@ public class CthulhuSchedulerTest {
   }
 
   @Test
-  public void getJobList() {
+  void getJobList() {
     String jobDefSt = "{\"type\":\"BashJob\",\"action\":\"echo wah\",\"name\":\"";
     String jobDefEnd = "\"}";
     ArrayList<String> jobNames = new ArrayList<>();

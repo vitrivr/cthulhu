@@ -18,13 +18,13 @@ import org.junit.jupiter.api.Test;
 import org.vitrivr.cthulhu.cineast.config.CineastConfig;
 import org.vitrivr.cthulhu.runners.CthulhuRunner;
 
-public class FeatureExtractionJobTest {
+class FeatureExtractionJobTest {
 
   private static JobFactory jf;
   private static JobTools mockTools;
 
   @BeforeAll
-  public static void setUpBeforeClass() throws Exception {
+  static void setUpBeforeClass() throws Exception {
     Properties props = new Properties();
     try {
       InputStream input = CthulhuRunner.class.getClassLoader()
@@ -63,7 +63,7 @@ public class FeatureExtractionJobTest {
   }
 
   @Test
-  public void makeDirectory() {
+  void makeDirectory() {
     // Create job, with working directory, and then delete them
     String json = "{\"type\":\"FeatureExtractionJob\",\"priority\":3, \"name\":\"fetujob\", \"immediate_cleanup\":true}";
     Job jb = jf.buildJob(json);
@@ -71,7 +71,7 @@ public class FeatureExtractionJobTest {
   }
 
   @Test
-  public void makeConfigFile() throws Exception {
+  void makeConfigFile() throws Exception {
     String json = "{\"type\":\"FeatureExtractionJob\",\"priority\":3, \"name\":\"configjob\"," +
         "\"immediate_cleanup\":\"false\", \"config\":{\"retriever\":\"aretriever\", " +
         "\"input\":{ \"id\":\"vidioid\", \"file\":\"file.avi\", \"name\":\"crazy vid\", " +
@@ -98,12 +98,12 @@ public class FeatureExtractionJobTest {
    */
   @Test
   @Disabled
-  public void withValidConfFile() throws IOException {
+  void withValidConfFile() throws IOException {
     String json = readWholeFile("full_fe_job.json");
     FeatureExtractionJob jb = (FeatureExtractionJob) jf.buildJob(json);
     jb.execute();
     //Gson gson = new Gson();
     //System.out.println(gson.toJson(jb));
-    assertEquals(0, jb.getStatus()); // Job succeeded
+    assertEquals(0, jb.getStatusValue()); // Job succeeded
   }
 }

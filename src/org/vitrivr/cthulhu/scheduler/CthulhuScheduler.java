@@ -107,6 +107,13 @@ public abstract class CthulhuScheduler {
     return job;
   }
 
+  public void registerJob(Job newJob) {
+    jq.push(newJob);
+    jt.put(newJob.getName(), newJob);
+    lg.info("Created job {}", newJob.getName());
+    schedulerTick();
+  }
+
   /**
    * Registers a new worker with the coordinator.
    * <p>
@@ -129,11 +136,8 @@ public abstract class CthulhuScheduler {
    *
    * @return a list of all the jobs in the job table
    */
-  public List<Job> getJobs() {
-    return jt.entrySet()
-        .stream()
-        .map(Entry::getValue)
-        .collect(Collectors.toList());
+  public List<Job>  getJobs() {
+    return new ArrayList<>(jt.values());
   }
 
   /**
@@ -182,7 +186,7 @@ public abstract class CthulhuScheduler {
    * @param jobId The name of the job to delete
    * @return The job object that was removed from the job table
    */
-  public Job deleteJob(String jobId) throws Exception {
+  Job deleteJob(String jobId) throws Exception {
     return deleteJob(jobId, false);
   }
 
@@ -233,7 +237,7 @@ public abstract class CthulhuScheduler {
   public void restoreStatus() {
   }
 
-  protected void setConn(CthulhuRESTConnector conn) {
+  void setConn(CthulhuRESTConnector conn) {
     this.conn = conn;
   }
 

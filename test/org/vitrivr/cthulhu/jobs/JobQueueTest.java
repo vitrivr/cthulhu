@@ -5,14 +5,14 @@ import static junit.framework.Assert.assertEquals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class JobQueueTest {
+class JobQueueTest {
 
   @BeforeAll
-  public static void setUpBeforeClass() {
+  static void setUpBeforeClass() {
   }
 
   @Test
-  public void BasicTest() {
+  void BasicTest() {
     JobQueue jq = new JobQueue();
     BashJob lowPri = new BashJob("", 2); // Low priority job
     BashJob hiestPri = new BashJob("", 0); // Second high priority job
@@ -27,7 +27,7 @@ public class JobQueueTest {
   }
 
   @Test
-  public void CreatedTimeTest() {
+  void CreatedTimeTest() {
     JobQueue jq = new JobQueue();
     BashJob lowPri = new BashJob("", 2); // Low priority job
     try {

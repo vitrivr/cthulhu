@@ -8,51 +8,51 @@ import com.google.gson.JsonParseException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class JobFactoryTest {
+class JobFactoryTest {
 
   private static JobFactory jf;
 
   @BeforeAll
-  public static void setUpBeforeClass() {
+  static void setUpBeforeClass() {
     jf = new JobFactory();
   }
 
   @Test
-  public void buildBasic() {
+  void buildBasic() {
     String json = "{\"type\":\"BashJob\"}";
     Job job = jf.buildJob(json);
     assertEquals(job.getClass(), BashJob.class);
   }
 
   @Test
-  public void defaultPriority() {
+  void defaultPriority() {
     String json = "{\"type\":\"BashJob\"}";
     Job job = jf.buildJob(json);
     assertEquals(2, job.getPriority());
   }
 
   @Test
-  public void customPriority() {
+  void customPriority() {
     String json = "{\"type\":\"BashJob\",\"priority\":3}";
     Job job = jf.buildJob(json);
     assertEquals(3, job.getPriority());
   }
 
   @Test
-  public void bashType() {
+  void bashType() {
     String json = "{\"type\":\"BashJob\",\"priority\":3}";
     Job job = jf.buildJob(json);
     assertTrue(job instanceof BashJob);
   }
 
   @Test
-  public void typelessJob() {
+  void typelessJob() {
     String json = "{\"priority\":3}";
     assertThrows(JsonParseException.class, () -> jf.buildJob(json));
   }
 
   @Test
-  public void malformedJob() {
+  void malformedJob() {
     String json = "Paoufbivsett}";
     assertThrows(JsonParseException.class, () -> jf.buildJob(json));
   }
