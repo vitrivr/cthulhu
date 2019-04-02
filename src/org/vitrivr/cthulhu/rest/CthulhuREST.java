@@ -156,9 +156,8 @@ public class CthulhuREST {
       }
       return "";
     });
-    post("/data/*", (req, res) -> {
-      String fname = req.pathInfo().replaceFirst("/data/", "");
-      fname = fname.replace("../", "/");
+    post("/data/:file", (req, res) -> {
+      String fname = req.params(":file");
       System.out.println("Receiving a file back: " + fname);
       File fout = new File(workspace, fname);
       if (fout.exists()) {
@@ -174,9 +173,12 @@ public class CthulhuREST {
       }
       return "";
     });
-    get("/data/*", (req, res) -> {
-      String fname = req.pathInfo().replaceFirst("/data/", "");
-      fname = fname.replace("../", "/");
+    get("/data/:file", (req, res) -> {
+      String fname = req.params(":file");
+      String acceptHeader = fetchAcceptHeader(fname);
+      if (acceptHeader != null) {
+        res.header("Content-Type", acceptHeader);
+      }
       InputStream is;
       try {
         File infile = new File(workspace, fname);
@@ -198,5 +200,25 @@ public class CthulhuREST {
       }
       return "";
     });
+  }
+
+  private static String fetchAcceptHeader(String fileName) {
+    String[] nameParts = fileName.split("\\.");
+    String fileType = nameParts[nameParts.length - 1].toLowerCase();
+    switch (fileType) {
+      case "gif":
+      case "png":
+      case "bmp":
+      case "jpg":
+      case "jpeg":
+        return "image/" + fileType;
+        case "mp4":
+      case "3gpp":
+        return "video/" + fileType;
+      case "avi":
+        return "video/x-msvideo";
+      default:
+        return null;
+    }
   }
 }
