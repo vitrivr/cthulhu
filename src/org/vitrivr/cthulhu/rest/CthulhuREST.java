@@ -204,7 +204,7 @@ public class CthulhuREST {
 
   private static String fetchAcceptHeader(String fileName) {
     String[] nameParts = fileName.split("\\.");
-    String fileType = nameParts[nameParts.length - 1];
+    String fileType = nameParts[nameParts.length - 1].toLowerCase();
     switch (fileType) {
       case "gif":
       case "png":
