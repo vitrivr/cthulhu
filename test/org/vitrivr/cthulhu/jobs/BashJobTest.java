@@ -22,16 +22,16 @@ class BashJobTest {
   }
 
   @Test
-  void RunEcho() {
+  void runEcho() {
     runCheck("echo pablo", "pablo\n");
   }
 
   @Test
-  void RunLarge() {
+  void runLarge() {
     String twoEcho =
-        "echo pablo\n" +
-            "echo was\n" +
-            "echo here";
+        "echo pablo\n"
+            + "echo was\n"
+            + "echo here";
     BashJob bj = new BashJob(twoEcho);
     bj.execute();
     assertEquals("pablo\nwas\nhere\n", bj.getStdOut());

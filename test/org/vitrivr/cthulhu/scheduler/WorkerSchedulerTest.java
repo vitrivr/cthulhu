@@ -23,7 +23,9 @@ class WorkerSchedulerTest {
     //Job jb = ms.getJobs("wahJob");
     try {
       Thread.sleep(5000);
-    } catch (Exception e) { /* Ignoring */}
+    } catch (Exception e) {
+      /* Ignoring */
+    }
     try {
       ms.deleteJob("wahJob", true);
     } catch (Exception e) {

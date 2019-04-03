@@ -1,13 +1,14 @@
 plugins {
     id 'java'
     id 'application'
+    id 'checkstyle'
 }
 
 repositories {
-   mavenCentral()
-   flatDir {
-       dirs 'lib'
-   }
+    mavenCentral()
+    flatDir {
+        dirs 'lib'
+    }
 }
 
 sourceCompatibility = 1.8
@@ -36,9 +37,9 @@ dependencies {
 }
 
 test {
-     testLogging {
-         showStandardStreams = true
-     }
+    testLogging {
+        showStandardStreams = true
+    }
 }
 
 sourceSets {
@@ -51,27 +52,39 @@ sourceSets {
         }
     }
     test {
-         java {
-              srcDir 'test'
-         }
+        java {
+            srcDir 'test'
+        }
         resources {
             srcDir 'testresources'
         }
     }
 }
 
-mainClassName='org.vitrivr.cthulhu.runners.CthulhuRunner'
+checkstyle {
+    toolVersion '8.19'
+    configFile file("checkstyle/checkstyle.xml")
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        html.enabled true
+        xml.enabled false
+    }
+}
+
+mainClassName = 'org.vitrivr.cthulhu.runners.CthulhuRunner'
 
 jar {
     manifest {
-             attributes 'Main-Class': 'org.vitrivr.cthulhu.runners.CthulhuRunner'
+        attributes 'Main-Class': 'org.vitrivr.cthulhu.runners.CthulhuRunner'
     }
     archiveName = 'cthulhu.jar'
-    from ({
-         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    from({
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }) {
-             exclude '*workspace*'
-         }
+        exclude '*workspace*'
+    }
 }
 
 task deploy(dependsOn: [build, jar])
