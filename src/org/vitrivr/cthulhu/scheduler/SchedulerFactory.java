@@ -7,12 +7,17 @@ import org.vitrivr.cthulhu.runners.CthulhuRunner.RunnerType;
 
 public class SchedulerFactory {
 
-  private Logger LOGGER;
+  private static final Logger LOGGER = LogManager.getLogger("r.sf");
 
-  public SchedulerFactory() {
-    LOGGER = LogManager.getLogger("r.sf");
-  }
-
+  /**
+   * Constructs and returns a {@link CthulhuScheduler} depending on the type of runner the method
+   * executer requests as defined by the {@link RunnerType} parameter.
+   *
+   * @param type the type of scheduler to generate
+   * @param props the properties to pass to the scheduler
+   * @return a constructed scheduler or null if the given runner type is unsupported
+   * @see Properties
+   */
   public CthulhuScheduler createScheduler(RunnerType type, Properties props) {
     if (type == RunnerType.WORKER) {
       LOGGER.info("Creating a WorkerScheduler");

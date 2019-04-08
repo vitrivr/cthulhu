@@ -11,6 +11,9 @@ public class ExtractionPipelineConfig {
   private final Integer taskQueueSize;
   private final File outputLocation;
 
+  /**
+   * Base constructor for the job, can be used by Jackson.
+   */
   @JsonCreator
   public ExtractionPipelineConfig(
       @JsonProperty("shotQueueSize") Integer shotQueueSize,

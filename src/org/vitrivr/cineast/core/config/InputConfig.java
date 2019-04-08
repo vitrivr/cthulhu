@@ -12,6 +12,9 @@ public class InputConfig {
   private final int skip;
   private final int limit;
 
+  /**
+   * Base constructor for the job, can be used by Jackson.
+   */
   @JsonCreator
   public InputConfig(
       @JsonProperty("name") String name,

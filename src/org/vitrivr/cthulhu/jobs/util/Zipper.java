@@ -10,6 +10,12 @@ import java.util.zip.ZipOutputStream;
 
 public class Zipper {
 
+  /**
+   * Zips a directory to the given location.
+   * @param directory the file
+   * @param zipOutput where the zip file will be stored
+   * @return true on success else false
+   */
   public static boolean zip(File directory, OutputStream zipOutput) {
     URI base = directory.toURI();
     Deque<File> queue = new LinkedList<>();

@@ -9,6 +9,9 @@ public class IdConfig {
   private final HashMap<String, String> properties;
   private final ExistenceCheck existenceCheckMode;
 
+  /**
+   * Base constructor for the job, can be used by Jackson.
+   */
   public IdConfig(
       @JsonProperty("name") String name,
       @JsonProperty("properties") HashMap<String, String> properties,

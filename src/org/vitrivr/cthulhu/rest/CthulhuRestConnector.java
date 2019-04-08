@@ -18,21 +18,22 @@ import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.worker.Worker;
 
 /**
- * @author Pablo E. <mail (at) iampablo.me>
+ * Class for sending requests between scheduler and workers.
+ * @author <a href="mailto:mail@iampablo.me">Pablo E.</a>
  */
-public class CthulhuRESTConnector {
+public class CthulhuRestConnector {
 
   /**
    * Protocol to be used when contacting to another host.
    */
-  private final String PROTOCOL = "http";
+  private static final String PROTOCOL = "http";
   /**
    * A gson instance to convert to JSON and to Job objects (or others) when exchanging data with
    * another host.
    */
   private Gson gson;
 
-  public CthulhuRESTConnector() {
+  public CthulhuRestConnector() {
     gson = new Gson();
   }
 
@@ -43,6 +44,7 @@ public class CthulhuRESTConnector {
    * <p>
    * If the host returns any text in the body of the response, this methor will return that text. If
    * an error occurs when communicating with the host, an exception will be thrown.
+   * </p>
    *
    * @param method The method to use when realizing an http/https connection
    *     (POST,GET,PUT,DELETE)
@@ -52,7 +54,6 @@ public class CthulhuRESTConnector {
    * @return The text returned by the remote host
    */
   private String makeRequest(Worker w, String method, String path, String body) throws IOException {
-    String resBody;
     URL workerUrl = new URL(PROTOCOL, w.getAddress(), w.getPort(), path);
     HttpURLConnection con = (HttpURLConnection) workerUrl.openConnection();
     con.setDoOutput(true);
@@ -68,10 +69,10 @@ public class CthulhuRESTConnector {
       os.flush();
     }
     InputStream in = new BufferedInputStream(con.getInputStream());
-    resBody = IOUtils.toString(in, "UTF-8");
+    String resBody = IOUtils.toString(in, "UTF-8");
 
-    if (con.getResponseCode() != HttpURLConnection.HTTP_CREATED &&
-        con.getResponseCode() != HttpURLConnection.HTTP_OK) {
+    if (con.getResponseCode() != HttpURLConnection.HTTP_CREATED
+        && con.getResponseCode() != HttpURLConnection.HTTP_OK) {
       throw new RuntimeException("Failed : HTTP error code : "
                                      + con.getResponseCode());
     }
@@ -85,6 +86,7 @@ public class CthulhuRESTConnector {
    * Returns the json definition of a list of jobs. If an error occurs, an exception will be thrown.
    * Internally it uses the {@link #makeRequest(Worker, String, String, String) makeRequest}
    * method.
+   * </p>
    *
    * @param w The object describing the remote host to communicate with.
    * @return The JSON definition of a list of jobs. An empty list if there are no jobs.
@@ -98,6 +100,7 @@ public class CthulhuRESTConnector {
    * <p>
    * If an error occurs, an exception will be thrown. Internally it uses the {@link
    * #makeRequest(Worker, String, String, String) makeRequest} method.
+   * </p>
    *
    * @param w The object describing the remote host to communicate with.
    * @param j The job to send to the remote host
@@ -111,6 +114,7 @@ public class CthulhuRESTConnector {
    * <p>
    * If an error occurs, an exception will be thrown. Internally it uses the {@link
    * #makeRequest(Worker, String, String, String) makeRequest} method.
+   * </p>
    *
    * @param w The object describing the remote host to communicate with.
    * @param j The job to put to the remote host
@@ -120,12 +124,13 @@ public class CthulhuRESTConnector {
   }
 
   /**
-   * Realizes a 'DELETE' request to delete a job in a remote host
+   * Realizes a 'DELETE' request to delete a job in a remote host.
    * <p>
    * If force is `false`, and the job is running, an exception will be thrown. If force is `true`
    * and the job is running, it will be stopped and removed completely. If any errors occur, a
    * exception will be thrown. Internally it uses the {@link #makeRequest(Worker, String, String,
    * String) makeRequest} method.
+   * </p>
    *
    * @param w The object describing the remote host to communicate with.
    * @param j The job to delete in the remote host
@@ -141,6 +146,7 @@ public class CthulhuRESTConnector {
    * This is normally called by a WORKER to inform a COORDINATOR that it is online and ready to
    * work. If an error occurs, an exception will be thrown. Internally it uses the {@link
    * #makeRequest(Worker, String, String, String) makeRequest} method.workerAddress
+   * </p>
    *
    * @param coordinator The object describing the remote host to communicate with
    * @param workerAddress the address of the worker
@@ -158,13 +164,19 @@ public class CthulhuRESTConnector {
     FileUtils.copyURLToFile(workerUrl, localFile);
   }
 
+  /**
+   * POST's a file to a worker.
+   * @param sendFile The file to send
+   * @param callback callback function that writes the file to a given location
+   * @param worker the worker to send the job to
+   * @param remoteFile the name of the file for the request uri and Content-Disposition header
+   * @throws Exception when zipped directory fails to send
+   */
   public void sendStream(
       File sendFile, BiPredicate<File, OutputStream> callback,
-      Worker w, String remoteFile) throws Exception {
-    String CRLF = "\r\n";
+      Worker worker, String remoteFile) throws Exception {
     String boundary = "cthulhuBoundary123456789";
-    PrintWriter wr;
-    URL workerUrl = new URL(PROTOCOL, w.getAddress(), w.getPort(),
+    URL workerUrl = new URL(PROTOCOL, worker.getAddress(), worker.getPort(),
                             "/data/" + remoteFile);
     HttpURLConnection con = (HttpURLConnection) workerUrl.openConnection();
     con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
@@ -173,23 +185,25 @@ public class CthulhuRESTConnector {
     con.setUseCaches(false);
     con.setRequestMethod("POST");
     OutputStream out = con.getOutputStream();
-    wr = new PrintWriter(new OutputStreamWriter(out));
-    wr.print("--" + boundary + CRLF);
-    wr.print(
-        "Content-Disposition: form-data; name=\"file\"; filename=\"" + remoteFile + "\"" + CRLF);
-    wr.print("Content-Type: application/octet-stream" + CRLF);
-    wr.print(CRLF);
-    wr.flush();
+    String newLineFlag = "\r\n";
+    PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(out));
+    printWriter.print("--" + boundary + newLineFlag);
+    printWriter.print(
+        "Content-Disposition: form-data; name=\"file\"; filename=\"" + remoteFile + "\""
+            + newLineFlag);
+    printWriter.print("Content-Type: application/octet-stream" + newLineFlag);
+    printWriter.print(newLineFlag);
+    printWriter.flush();
     boolean res = callback.test(sendFile, out);
     out.flush();
     if (!res) {
       throw new Exception("Unable to send zipped directory");
     }
-    wr.print(CRLF);
-    wr.print("--" + boundary + "--" + CRLF);
-    wr.flush();
-    if (con.getResponseCode() != HttpURLConnection.HTTP_CREATED &&
-        con.getResponseCode() != HttpURLConnection.HTTP_OK) {
+    printWriter.print(newLineFlag);
+    printWriter.print("--" + boundary + "--" + newLineFlag);
+    printWriter.flush();
+    if (con.getResponseCode() != HttpURLConnection.HTTP_CREATED
+        && con.getResponseCode() != HttpURLConnection.HTTP_OK) {
       throw new RuntimeException("Failed : HTTP error code : "
                                      + con.getResponseCode());
     }

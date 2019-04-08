@@ -12,6 +12,9 @@ public class JobFactory {
   private Gson gson;
   private JobTools tools = null;
 
+  /**
+   * Default constructor that instantiates the gson parser.
+   */
   public JobFactory() {
     this.gson = new GsonBuilder()
         .registerTypeAdapter(Job.class, new JobAdapter())
@@ -25,6 +28,7 @@ public class JobFactory {
    * Builds a job based on a JSON-formatted description. The job type must be present, or it
    * defaults to bash. Existing job types are: * Bash script "BashJob" * Feature extraction
    * "FeatureExtractionJob"
+   * </p>
    *
    * @param description The JSON definition of the job. It requires job type, action, name,
    *     status, and priority.
@@ -32,24 +36,19 @@ public class JobFactory {
    *     exception will be thrown.
    */
   public Job buildJob(String description) {
-    Job jb = gson.fromJson(description, Job.class);
+    Job job = gson.fromJson(description, Job.class);
     if (tools != null) {
-      jb.setTools(tools);
+      job.setTools(tools);
     }
-    return jb;
+    return job;
   }
 
-  public Job buildJob(String description, String type, int priority) {
-    if (!"BashJob".equals(type)) {
-      throw new IllegalArgumentException("Invalid job type: " + type);
-    }
-    Job jb = new BashJob(description, priority);
-    if (tools != null) {
-      jb.setTools(tools);
-    }
-    return jb;
-  }
-
+  /**
+   * Creates a list of jobs from a json string.
+   *
+   * @param description the json array to parse
+   * @return the list of jobs from the json string
+   */
   public List<Job> buildJobs(String description) {
     Type listType = new TypeToken<ArrayList<Job>>() {
     }.getType();

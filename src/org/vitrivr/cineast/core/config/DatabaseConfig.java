@@ -12,6 +12,9 @@ public class DatabaseConfig {
   private final Writer writer;
   private final Selector selector;
 
+  /**
+   * Base constructor for the job, can be used by Jackson.
+   */
   @JsonCreator
   public DatabaseConfig(
       @JsonProperty("host") String host,

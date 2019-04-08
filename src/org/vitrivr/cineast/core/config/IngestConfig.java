@@ -21,6 +21,9 @@ public class IngestConfig {
   private final ExtractionPipelineConfig pipeline;
   private final MetadataConfig segmenter;
 
+  /**
+   * Base constructor for the job, can be used by Jackson.
+   */
   @JsonCreator
   public IngestConfig(
       @JsonProperty("type") MediaType type,
@@ -39,10 +42,6 @@ public class IngestConfig {
     this.database = database;
     this.pipeline = pipeline;
     this.segmenter = segmenter;
-  }
-
-  public static Logger getLOGGER() {
-    return LOGGER;
   }
 
   public MediaType getType() {

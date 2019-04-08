@@ -6,6 +6,6 @@ public class CineastFeature {
 
   public String name;
   @SerializedName("class")
-  public String _class;
+  public String clazz;
   public String config;
 }

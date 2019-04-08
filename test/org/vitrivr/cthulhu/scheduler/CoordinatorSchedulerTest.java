@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.jobs.JobAdapter;
 import org.vitrivr.cthulhu.jobs.JobFactory;
-import org.vitrivr.cthulhu.rest.CthulhuRESTConnector;
+import org.vitrivr.cthulhu.rest.CthulhuRestConnector;
 import org.vitrivr.cthulhu.worker.Worker;
 
 class CoordinatorSchedulerTest {
@@ -32,11 +32,11 @@ class CoordinatorSchedulerTest {
     jf = new JobFactory();
   }
 
-  private void addMockCall(CthulhuRESTConnector mockonnector, Worker inWorker, String returnList) {
+  private void addMockCall(CthulhuRestConnector mockonnector, Worker inWorker, String returnList) {
     try {
       when(mockonnector.getJobs(inWorker)).thenReturn(returnList);
     } catch (Exception e) {
-      System.out.println("problem mocking the CthulhuRESTConnector");
+      System.out.println("problem mocking the CthulhuRestConnector");
     }
   }
 
@@ -44,8 +44,8 @@ class CoordinatorSchedulerTest {
    * This takes in the two arguments for the mock connector's getJobs method, and the expected
    * return value.
    */
-  private CthulhuRESTConnector mockConnectorGetJobs(Worker inWorker, String returnList) {
-    CthulhuRESTConnector mockConnector = mock(CthulhuRESTConnector.class);
+  private CthulhuRestConnector mockConnectorGetJobs(Worker inWorker, String returnList) {
+    CthulhuRestConnector mockConnector = mock(CthulhuRestConnector.class);
     addMockCall(mockConnector, inWorker, returnList);
     return mockConnector;
   }
@@ -90,12 +90,12 @@ class CoordinatorSchedulerTest {
     CoordinatorScheduler rs = restoreFromFile(mainFile);
     String resultJobs = readWholeFile(jobListFile);
     //System.out.println(gson.toJson(rs));
-    CthulhuRESTConnector nwConn = mockConnectorGetJobs(
+    CthulhuRestConnector nwConn = mockConnectorGetJobs(
         rs.getWorkers("147.46.117.72:8081"),
         resultJobs);
     rs.setConn(nwConn);
     assertEquals(1, rs.getJobs().size()); // Restoring a single job
-    assertEquals(0, rs.jq.size()); // No jobs on the queue
+    assertEquals(0, rs.jobQueue.size()); // No jobs on the queue
     assertEquals(
         Job.Status.RUNNING.getValue(),
         rs.getJobs().get(0).getStatusValue()); // Before checking job is running
@@ -103,7 +103,7 @@ class CoordinatorSchedulerTest {
     rs.restoreStatus();
     //System.out.println(gson.toJson(rs));
     assertEquals(1, rs.getJobs().size()); // Restoring a single job
-    assertEquals(finalJobQueueSize, rs.jq.size()); // No jobs added to the queue
+    assertEquals(finalJobQueueSize, rs.jobQueue.size()); // No jobs added to the queue
     assertEquals(jobStatus, rs.getJobs().get(0).getStatusValue()); // Before checking job is DONE
     return rs;
   }
@@ -118,10 +118,10 @@ class CoordinatorSchedulerTest {
      */
     CoordinatorScheduler rs = restoreFromFile("testRestore1.json");
     // At this point the job queue should be empty, and all jobs must be waitin
-    assertEquals(0, rs.jq.size());
+    assertEquals(0, rs.jobQueue.size());
     rs.getJobs().forEach(j -> assertTrue(j.isWaiting()));
     rs.restoreStatus();
-    assertEquals(2, rs.jq.size());
+    assertEquals(2, rs.jobQueue.size());
   }
 
   @Test
@@ -147,12 +147,12 @@ class CoordinatorSchedulerTest {
      */
     CoordinatorScheduler rs = restoreFromFile("testRestore3.json");
     String resultJobs = readWholeFile("testJobList3-1.json");
-    CthulhuRESTConnector nwConn = mockConnectorGetJobs(
+    CthulhuRestConnector nwConn = mockConnectorGetJobs(
         rs.getWorkers("147.46.117.72:8081"),
         resultJobs);
     rs.setConn(nwConn);
     assertEquals(3, rs.getJobs().size()); // Restoring three jobs
-    assertEquals(0, rs.jq.size()); // No jobs on the queue
+    assertEquals(0, rs.jobQueue.size()); // No jobs on the queue
     // Two running jobs, one waiting job
     Set<Integer> st = new HashSet<>(Arrays.asList(
         Job.Status.RUNNING.getValue(),
@@ -162,7 +162,7 @@ class CoordinatorSchedulerTest {
     assertTrue(rsSt.containsAll(st));
     assertEquals(st.size(), rsSt.size());
     rs.restoreStatus();
-    assertEquals(1, rs.jq.size()); // No jobs on the queue
+    assertEquals(1, rs.jobQueue.size()); // No jobs on the queue
     rsSt = rs.getJobs().stream().map(Job::getStatusValue).collect(Collectors.toSet());
     st = new HashSet<>(Arrays.asList(
         Job.Status.RUNNING.getValue(),
@@ -184,14 +184,14 @@ class CoordinatorSchedulerTest {
      */
     CoordinatorScheduler rs = restoreFromFile("testRestore4.json");
     String resultJobs = readWholeFile("testJobList4-1.json");
-    CthulhuRESTConnector nwConn = mockConnectorGetJobs(
+    CthulhuRestConnector nwConn = mockConnectorGetJobs(
         rs.getWorkers("147.46.117.72:8081"),
         resultJobs);
     when(nwConn.getJobs(rs.getWorkers("147.46.117.72:8083")))
         .thenThrow(new Exception("Lost the workah"));
     rs.setConn(nwConn);
     assertEquals(3, rs.getJobs().size()); // Restoring three jobs
-    assertEquals(0, rs.jq.size()); // No jobs on the queue
+    assertEquals(0, rs.jobQueue.size()); // No jobs on the queue
     assertEquals(2, rs.getWorkers().size());
     // Two running jobs, one waiting job
     Set<Integer> st = new HashSet<>(Arrays.asList(
@@ -207,7 +207,7 @@ class CoordinatorSchedulerTest {
     assertEquals(1, rs.getWorkers().size());
     assertNull(rs.getWorkers("147.46.117.72:8083"));
     assertEquals("147.46.117.72:8081", rs.getWorkers("147.46.117.72:8081").getId());
-    assertEquals(2, rs.jq.size()); // Two jobs on the queue
+    assertEquals(2, rs.jobQueue.size()); // Two jobs on the queue
     rsSt = rs.getJobs().stream().map(Job::getStatusValue).collect(Collectors.toSet());
     st = new HashSet<>(Arrays.asList(
         Job.Status.RUNNING.getValue(),

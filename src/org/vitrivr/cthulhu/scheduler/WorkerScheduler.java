@@ -9,7 +9,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.vitrivr.cthulhu.jobs.Job;
-import org.vitrivr.cthulhu.jobs.Job.Status;
 import org.vitrivr.cthulhu.jobs.JobTools;
 import org.vitrivr.cthulhu.worker.Worker;
 
@@ -24,6 +23,11 @@ public class WorkerScheduler extends CthulhuScheduler {
     this(props, false);
   }
 
+  /**
+   * Main constructor for a WorkerScheduler.
+   * @param props the required {@link Properties} to setup the Scheduler
+   * @param standAlone whether the scheduler will have workers or not
+   */
   public WorkerScheduler(Properties props, boolean standAlone) {
     super(props);
     jobExecutors = new ConcurrentHashMap<>();
@@ -35,13 +39,12 @@ public class WorkerScheduler extends CthulhuScheduler {
       int port = Integer.parseInt(props != null ? props.getProperty("port") : "8081");
       informCoordinator(props != null ? props.getProperty("address") : "127.0.0.1", port);
       jobTools = new JobTools(props, conn, coordinator); // Resetting the job tools
-      jf.setTools(jobTools);
+      jobFactory.setTools(jobTools);
     }
   }
 
   /**
-   * Stops the periodic polling of the coordinator
-   * <p>
+   * Stops the periodic polling of the coordinator.
    */
   private void stopWaitingForCoord() {
     if (coordinatorPoller != null) {
@@ -52,20 +55,19 @@ public class WorkerScheduler extends CthulhuScheduler {
 
   /**
    * Polls for the coordinator until it comes back, or the worker is terminated.
-   * <p>
    */
   private void waitForCoord() {
-    lg.info("Starting the polling for the coordinator");
+    LOGGER.info("Starting the polling for the coordinator");
     int pollDelay = 10;
     ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     coordinatorPoller = executor.scheduleAtFixedRate(() -> {
       try {
         returnFinalizedJobs();
       } catch (Exception e) {
-        lg.warn("Coordinator still not available");
+        LOGGER.warn("Coordinator still not available");
         return;
       }
-      lg.info("Coordinator has been recovered!");
+      LOGGER.info("Coordinator has been recovered!");
       schedulerTick();
       stopWaitingForCoord();
     }, pollDelay, pollDelay, TimeUnit.SECONDS);
@@ -76,21 +78,21 @@ public class WorkerScheduler extends CthulhuScheduler {
    * thread. (i.e. assumes that the capacity allows to run one more job).
    */
   private void executeNextJob() {
-    if (jq.size() == 0) {
+    if (jobQueue.size() == 0) {
       return;
     }
-    Job nextJob = jq.pop();
-    lg.info("Starting to execute job {}", nextJob.getName());
+    Job nextJob = jobQueue.pop();
+    LOGGER.info("Starting to execute job {}", nextJob.getName());
 
-        /* Job is executed simply inside a thread. Unless we need 
-           more sophisticaded execution logic, we'll use a  simple 
-           lambda as the Runner interface passed to Thread t */
+    /* Job is executed simply inside a thread. Unless we need
+       more sophisticaded execution logic, we'll use a  simple
+       lambda as the Runner interface passed to Thread t */
     Thread t = new Thread(() -> {
       int result;
       result = nextJob.execute();
       String strResult = result == 0 ? "SUCCESS" : "FAILURE";
       strResult = nextJob.wasInterrupted() ? "INTERRUPTED" : strResult;
-      lg.info("Job execution of job {} finalized with {}",
+      LOGGER.info("Job execution of job {} finalized with {}",
               nextJob.getName(), strResult);
       finalizeJobExecution(nextJob);
     });
@@ -109,7 +111,7 @@ public class WorkerScheduler extends CthulhuScheduler {
       }
       // After reporting the result of the job, we remove it from the job table
       // TODO: Pick up of job results
-      jt.remove(j.getName());
+      jobTable.remove(j.getName());
       if (jobExecutors.containsKey(j.getName())) {
         jobExecutors.remove(j.getName());
       }
@@ -119,11 +121,11 @@ public class WorkerScheduler extends CthulhuScheduler {
   private void finalizeJobExecution(Job j) {
     // TODO THIS MUST EXECUTE EVEN IF THE JOB WAS DELETED AND STOPPED.
     try {
-      lg.info("Reporting result of job {} to coordinator.", j.getName());
+      LOGGER.info("Reporting result of job {} to coordinator.", j.getName());
       doneJobQueue.add(j);
       returnFinalizedJobs();
     } catch (Exception e) {
-      lg.error(
+      LOGGER.error(
           "Unable to report result of job {} to coordinator {}: {}",
           j.getName(),
           coordinator != null ? coordinator.getId() : "STANDALONE",
@@ -143,13 +145,13 @@ public class WorkerScheduler extends CthulhuScheduler {
     }
     Thread exec = jobExecutors.get(job.getName());
     if (exec == null) {
-      lg.warn("Job {} has finished running before it was deleted.", job.getName());
+      LOGGER.warn("Job {} has finished running before it was deleted.", job.getName());
     }
-    lg.info("Sending interruption to job executor of {}", job.getName());
+    LOGGER.info("Sending interruption to job executor of {}", job.getName());
     exec.interrupt();
     // TODO - can this fail?
     // If all went fine, then we remove it!
-    jt.remove(job.getName());
+    jobTable.remove(job.getName());
     jobExecutors.remove(job.getName());
   }
 
@@ -163,11 +165,11 @@ public class WorkerScheduler extends CthulhuScheduler {
   }
 
   private void informCoordinator(String workerAddress, int workerPort) {
-    lg.info("Registering worker with coordinator {}", coordinator.getId());
+    LOGGER.info("Registering worker with coordinator {}", coordinator.getId());
     try {
       conn.postWorker(coordinator, workerAddress, workerPort);
     } catch (Exception e) {
-      lg.error("Failed to register with coordinator: {}", e.toString());
+      LOGGER.error("Failed to register with coordinator: {}", e.toString());
       System.exit(1); // Exiting. Need a coordinator or nothing can be done.
     }
   }

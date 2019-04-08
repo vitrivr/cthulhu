@@ -14,18 +14,30 @@ import org.apache.commons.io.IOUtils;
 import org.vitrivr.cthulhu.cineast.config.CineastConfig;
 import org.vitrivr.cthulhu.cineast.config.CineastExtractorConfig;
 
+/**
+ * Job for integration with Cineast deprecated as outdated but kept for use with old versions of
+ * Cineast.
+ *
+ * @see CineastJob
+ */
+@Deprecated
 public class FeatureExtractionJob extends Job {
 
-  CineastConfig config;
-  String note;
-  boolean immediate_cleanup = true;
-  boolean return_zipfile = false;
   /**
    * The working directory of the job. If it's set, then it won't be recreated. Files that are
    * already in the working directory will override remote server files.
    */
   String workDir = null;
+  private CineastConfig config;
+  private String note;
+  private boolean immediateCleanup = true;
+  private boolean returnZipfile = false;
 
+  /**
+   * Triggers the execution of the job, running a Cineast jar.
+   *
+   * @return status of the job
+   */
   public int execute() {
     if (tools == null) {
       this.status = Status.UNEXPECTED_ERROR;
@@ -39,12 +51,12 @@ public class FeatureExtractionJob extends Job {
     obtainInputFiles(workDir);
     String cf = generateConfigFile(workDir);
     executeCineast(cf);
-    if (return_zipfile) {
+    if (returnZipfile) {
       returnResult();
     } else {
       tools.lg.info("{} - Results will not be returned to coordinator");
     }
-    if (immediate_cleanup) {
+    if (immediateCleanup) {
       deleteWorkingDirectory();
     } else {
       tools.lg.info("{} - No cleanup to be done", name);
@@ -79,11 +91,11 @@ public class FeatureExtractionJob extends Job {
     if (config == null || config.input == null) {
       return;
     }
-    File wdf = new File(workingDir);
-    File inpf = new File(wdf, config.input.file);
-    String inpStr = inpf.getName();
-    Set<String> dirFiles = new HashSet<>(Arrays.asList(wdf.list()));
-    if (!dirFiles.contains(inpStr)) {
+    File workingDirectory = new File(workingDir);
+    File inputFile = new File(workingDirectory, config.input.file);
+    String inputStream = inputFile.getName();
+    Set<String> dirFiles = new HashSet<>(Arrays.asList(workingDirectory.list()));
+    if (!dirFiles.contains(inputStream)) {
       tools.lg.debug("{} - Obtaining file {}", name, config.input.file);
       if (!tools.getFile(config.input.file, workingDir)) {
         tools.lg.error("{} - Trouble getting file {}", name, config.input.file);
@@ -91,10 +103,10 @@ public class FeatureExtractionJob extends Job {
         note = (note == null ? "" : note + " ; ") + "Unable to get remote files";
       }
     }
-    config.input.folder = wdf.getAbsolutePath();
+    config.input.folder = workingDirectory.getAbsolutePath();
     if (config.input.subtitles != null) {
-      config.input.subtitles.stream().forEach(s -> {
-        File subf = new File(wdf, s);
+      config.input.subtitles.forEach(s -> {
+        File subf = new File(workingDirectory, s);
         String fnme = subf.getName();
         tools.lg.debug("{} - Obtaining file {}", name, fnme);
         if (!dirFiles.contains(fnme)) {
@@ -110,7 +122,6 @@ public class FeatureExtractionJob extends Job {
   }
 
   private String generateConfigFile(String workingDir) {
-    String confileName = workingDir + "/" + name + "_config.json";
     if (config == null) {
       return null;
     }
@@ -120,16 +131,17 @@ public class FeatureExtractionJob extends Job {
     if (config.extractor.outputLocation == null) {
       config.extractor.outputLocation = new File(workingDir).getAbsolutePath();
     }
-    tools.lg.info("{} - Generating config file in {}", name, confileName);
+    String configFileName = workingDir + "/" + name + "_config.json";
+    tools.lg.info("{} - Generating config file in {}", name, configFileName);
     try {
-      Writer writer = new FileWriter(confileName);
+      Writer writer = new FileWriter(configFileName);
       Gson gson = new GsonBuilder().create();
       gson.toJson(config, writer);
       writer.close();
     } catch (IOException io) {
       tools.lg.error("{} - Unable to generate a config file.", name);
     }
-    return confileName;
+    return configFileName;
   }
 
   private void executeCineast(String cfile) {
@@ -144,15 +156,7 @@ public class FeatureExtractionJob extends Job {
     try {
       tools.lg.debug("{} - Preparing to create process", name);
       Process p = Runtime.getRuntime().exec(command);
-      InputStream is = p.getInputStream();
-      InputStream es = p.getErrorStream();
-      tools.lg.debug("{} - Starting to collect input/output stream", name);
-      this.stdOut = IOUtils.toString(is, "UTF-8");
-      this.stdErr = IOUtils.toString(es, "UTF-8");
-      tools.lg.debug("{} - Done collecting input/output stream", name);
-      //System.out.println("SDOUT: "+stdOut);
-      //System.out.println("SDERR: "+stdErr);
-      int retVal = p.waitFor();
+      int retVal = waitForProcess(p);
       if (retVal == 0) {
         status = Job.Status.SUCCEEDED;
       }
