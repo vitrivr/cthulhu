@@ -12,7 +12,7 @@ class JobQueueTest {
   }
 
   @Test
-  void BasicTest() {
+  void basicTest() {
     JobQueue jq = new JobQueue();
     BashJob lowPri = new BashJob("", 2); // Low priority job
     BashJob hiestPri = new BashJob("", 0); // Second high priority job
@@ -27,24 +27,26 @@ class JobQueueTest {
   }
 
   @Test
-  void CreatedTimeTest() {
+  void createdTimeTest() {
     JobQueue jq = new JobQueue();
+
+    BashJob latestLowPri = new BashJob("", 2);
+    jq.push(latestLowPri);
+
     BashJob lowPri = new BashJob("", 2); // Low priority job
     try {
       Thread.sleep(100);
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
     }
+    jq.push(lowPri);
+
     BashJob laterLowPri = new BashJob("", 2); // Second high priority job
     try {
       Thread.sleep(100);
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
     }
-    BashJob latestLowPri = new BashJob("", 2);
-
-    jq.push(latestLowPri);
-    jq.push(lowPri);
     jq.push(laterLowPri);
     assertEquals(lowPri, jq.pop());
     assertEquals(laterLowPri, jq.pop());

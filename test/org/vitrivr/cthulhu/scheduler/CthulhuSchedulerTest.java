@@ -33,7 +33,9 @@ class CthulhuSchedulerTest {
 
     try {
       ms.deleteJob("wahJob");
-    } catch (Exception e) {/*Ignoring...*/}
+    } catch (Exception e) {
+      /*Ignoring...*/
+    }
     jb = ms.getJobs("wahJob");
     assertNull(jb);
   }

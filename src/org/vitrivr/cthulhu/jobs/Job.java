@@ -6,13 +6,16 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.Gson;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import org.apache.commons.io.IOUtils;
 
 /**
  * The Job interface. Defines the basic methods for jobs to be manipulated.
  */
-abstract public class Job implements Comparable<Job> {
+public abstract class Job implements Comparable<Job> {
 
   protected int priority = 2; // Default priority is 2
   String stdOut;
@@ -27,15 +30,18 @@ abstract public class Job implements Comparable<Job> {
    */
   Status status = Status.WAITING;
   @JsonFormat(shape = Shape.STRING, pattern = "dd/MM/yyyy - hh:mm:ss")
-  private LocalDateTime created_at;
+  private LocalDateTime createdAt;
 
   /**
-   * Creates a job without arguments
+   * Creates a job without arguments.
    */
   public Job() {
-    created_at = LocalDateTime.now();
+    createdAt = LocalDateTime.now();
   }
 
+  /**
+   * Base constructor for the job, can be used by Jackson.
+   */
   @JsonCreator()
   public Job(
       @JsonProperty("stdOut") String stdOut,
@@ -44,18 +50,14 @@ abstract public class Job implements Comparable<Job> {
       @JsonProperty("name") String name,
       @JsonProperty("status") Status status,
       @JsonProperty("priority") int priority,
-      @JsonProperty("created_at") LocalDateTime created_at) {
+      @JsonProperty("createdAt") LocalDateTime createdAt) {
     this.stdOut = stdOut;
     this.stdErr = stdErr;
     this.type = type;
     this.name = name;
     this.status = status;
     this.priority = priority;
-    this.created_at = created_at;
-  }
-
-  void setTools(JobTools tools) {
-    this.tools = tools;
+    this.createdAt = createdAt;
   }
 
   /**
@@ -63,14 +65,12 @@ abstract public class Job implements Comparable<Job> {
    * <p>
    * It is the main routine called to execute a job. It returns an int with the status of the job
    * (0:SUCCESS,1:FAILED)
+   * </p>
    */
-  abstract public int execute();
+  public abstract int execute();
 
   /**
-   * Checks if the job is running
-   * <p>
-   *
-   * @return True if the job is running, false otherwise.
+   * Returns if the job is running.
    */
   @JsonIgnore
   public boolean isRunning() {
@@ -78,22 +78,14 @@ abstract public class Job implements Comparable<Job> {
   }
 
   /**
-   * Checks if the job was interrupted
-   * <p>
-   *
-   * @return True if the job was interrupted, false otherwise.
+   * Returns if the job was interrupted.
    */
   public boolean wasInterrupted() {
     return status == Status.INTERRUPTED;
   }
 
-  void setStatus(Status newStatus) {
-    this.status = newStatus;
-  }
-
   /**
-   * Checks the status of the job
-   * <p>
+   * Checks the status of the job.
    *
    * @return An integer representing the value of the job status see {@link Status Status}.
    */
@@ -103,8 +95,7 @@ abstract public class Job implements Comparable<Job> {
   }
 
   /**
-   * Returns the status of a job
-   * <p>
+   * Returns the status of a job.
    *
    * @return An string representing the value of the job status see {@link Status Status}.
    */
@@ -112,17 +103,19 @@ abstract public class Job implements Comparable<Job> {
     return status.toString();
   }
 
-  /**
-   * Sets the job status as RUNNING
-   * <p>
+  void setStatus(Status newStatus) {
+    this.status = newStatus;
+  }
+
+  /**B
+   * Sets the job status as RUNNING.
    */
   public void setRunning() {
     status = Status.RUNNING;
   }
 
   /**
-   * Sets the job status as WAITING
-   * <p>
+   * Sets the job status as WAITING.
    */
   public void setWaiting() {
     status = Status.WAITING;
@@ -130,9 +123,6 @@ abstract public class Job implements Comparable<Job> {
 
   /**
    * Returns the type of the job.
-   * <p>
-   *
-   * @return The job type (BashJob, FeatureExtractionJob,...)
    */
   public String getType() {
     return type;
@@ -140,19 +130,13 @@ abstract public class Job implements Comparable<Job> {
 
   /**
    * Returns the priority of the job.
-   * <p>
-   *
-   * @return the priority of the job (smaller is better)
    */
   public int getPriority() {
     return priority;
   }
 
   /**
-   * Modifies the priority of the job
-   * <p>
-   *
-   * @param priority the new priority of the job
+   * Modifies the priority of the job.
    */
   public void setPriority(int priority) {
     this.priority = priority;
@@ -160,7 +144,6 @@ abstract public class Job implements Comparable<Job> {
 
   /**
    * Returns whether the job is waiting to run.
-   * <p>
    *
    * @return true if the job status is WAITING, false otherwise
    */
@@ -170,20 +153,14 @@ abstract public class Job implements Comparable<Job> {
   }
 
   /**
-   * Returns the name of the job
-   * <p>
-   *
-   * @return the name of the job
+   * Returns the name of the job.
    */
   public String getName() {
     return name;
   }
 
   /**
-   * Returns the JSON representation of the job
-   * <p>
-   *
-   * @return the JSON representation of the job
+   * Returns the JSON representation of the job.
    */
   public String toString() {
     Gson gson = new Gson();
@@ -191,20 +168,16 @@ abstract public class Job implements Comparable<Job> {
   }
 
   /**
-   * Returns the time a job was created
-   * <p>
-   *
-   * @return the time a job was created
+   * Returns the time a job was created.
    */
   private LocalDateTime getCreatedAt() {
-    return created_at;
+    return createdAt;
   }
 
   /**
    * Compares two jobs for priority and creation time. If priority is smaller, then the job is
    * considered 'smaller'. If priority is the same, then jobs created earlier are considered
    * 'smaller'.
-   * <p>
    *
    * @return 1 if our job is bigger, -1 if it's smaller. 0 if it is equal.
    */
@@ -212,24 +185,24 @@ abstract public class Job implements Comparable<Job> {
     if (priority > o.getPriority()) {
       return 1;
     }
-    if (priority == o.getPriority() && created_at.compareTo(o.getCreatedAt()) > 0) {
+    if (priority == o.getPriority() && createdAt.compareTo(o.getCreatedAt()) > 0) {
       return 1;
     }
-    if (priority == o.getPriority() && created_at.compareTo(o.getCreatedAt()) == 0) {
+    if (priority == o.getPriority() && createdAt.compareTo(o.getCreatedAt()) == 0) {
       return 0;
     }
     return -1;
   }
 
   /**
-   * Returns the standard output of a job after it ran
+   * Returns the standard output of a job after it has run.
    */
   String getStdOut() {
     return stdOut;
   }
 
   /**
-   * Returns the standard error stream contents of a job after it ran
+   * Returns the standard error stream contents of a job after it has run.
    */
   String getStdErr() {
     return stdErr;
@@ -237,6 +210,10 @@ abstract public class Job implements Comparable<Job> {
 
   Optional<JobTools> getTools() {
     return Optional.ofNullable(tools);
+  }
+
+  void setTools(JobTools tools) {
+    this.tools = tools;
   }
 
   public enum Status {
@@ -255,5 +232,15 @@ abstract public class Job implements Comparable<Job> {
     public int getValue() {
       return value;
     }
+  }
+
+  int waitForProcess(Process p) throws IOException, InterruptedException {
+    InputStream is = p.getInputStream();
+    InputStream es = p.getErrorStream();
+    tools.lg.debug("{} - Starting to collect input/output stream", name);
+    this.stdOut = IOUtils.toString(is, "UTF-8");
+    this.stdErr = IOUtils.toString(es, "UTF-8");
+    tools.lg.debug("{} - Done collecting input/output stream", name);
+    return p.waitFor();
   }
 }

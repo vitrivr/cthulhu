@@ -18,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
 import java.util.Properties;
 import javax.servlet.MultipartConfigElement;
 import org.apache.logging.log4j.LogManager;
@@ -29,24 +28,28 @@ import org.vitrivr.cthulhu.jobs.util.StreamUtils;
 import org.vitrivr.cthulhu.scheduler.CthulhuScheduler;
 import org.vitrivr.cthulhu.worker.Worker;
 
-public class CthulhuREST {
+public class CthulhuRest {
 
+  private static final Logger LOGGER = LogManager.getLogger("r.m.api");
   private String workspace;
   private CthulhuScheduler ms;
-  private Logger LOGGER = LogManager.getLogger("r.m.api");
   private ObjectMapper mapper;
   private Gson gson;
 
-  public CthulhuREST() {
+  /**
+   * Constructor that instantiates the Json mapper.
+   */
+  public CthulhuRest() {
     this.mapper = new ObjectMapper()
         .registerModule(new JavaTimeModule())
         .registerModule(new Jdk8Module());
   }
 
   /**
-   * Initializes all the REST services for this agent (worker/coordinator)
+   * Initializes all the REST services for this agent (worker/coordinator).
    * <p>
    * If no port can be determined to listen on, an exception will be thrown
+   * </p>
    *
    * @param ms This is the scheduler that is in charge of managing microservice REST calls
    * @param prop This is a properties object with all runtime properties of the agent
@@ -59,7 +62,7 @@ public class CthulhuREST {
     String sf = prop.getProperty("staticfiles");
     workspace = prop.getProperty("workspace");
     int port = Integer.parseInt(prop.getProperty("port"));
-    setupRESTCalls(sf, port);
+    setupRestCalls(sf, port);
     LOGGER.info("Ready!");
   }
 
@@ -67,12 +70,13 @@ public class CthulhuREST {
    * Stops the REST service.
    * <p>
    * Stops the Jetty server that is in charge of running the REST service.
+   * </p>
    */
   public void stopServer() {
     stop();
   }
 
-  private void setupRESTCalls(String staticFilesDir, int listenPort) {
+  private void setupRestCalls(String staticFilesDir, int listenPort) {
     port(listenPort);
     LOGGER.info("Static files are served from: " + staticFilesDir);
     staticFileLocation(staticFilesDir);
@@ -91,7 +95,7 @@ public class CthulhuREST {
       ms.registerJob(requestJob);
       return "";
     });
-    get("/jobs", (req, res) -> ms.getJobs() );
+    get("/jobs", (req, res) -> ms.getJobs());
     get("/jobsjackson", (req, res) -> mapper.writeValueAsString(ms.getJobs()));
     get("/jobs/:id", (req, res) -> {
       String id = req.params(":id");

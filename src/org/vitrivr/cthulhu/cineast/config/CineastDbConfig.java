@@ -1,6 +1,6 @@
 package org.vitrivr.cthulhu.cineast.config;
 
-public class CineastDBConfig {
+public class CineastDbConfig {
 
   public String host;
   public int port;

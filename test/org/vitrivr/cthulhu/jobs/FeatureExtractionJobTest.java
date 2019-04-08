@@ -65,17 +65,18 @@ class FeatureExtractionJobTest {
   @Test
   void makeDirectory() {
     // Create job, with working directory, and then delete them
-    String json = "{\"type\":\"FeatureExtractionJob\",\"priority\":3, \"name\":\"fetujob\", \"immediate_cleanup\":true}";
+    String json = "{\"type\":\"FeatureExtractionJob\",\"priority\":3,"
+        + "\"name\":\"fetujob\",\"immediate_cleanup\":true}";
     Job jb = jf.buildJob(json);
     jb.execute();
   }
 
   @Test
   void makeConfigFile() throws Exception {
-    String json = "{\"type\":\"FeatureExtractionJob\",\"priority\":3, \"name\":\"configjob\"," +
-        "\"immediate_cleanup\":\"false\", \"config\":{\"retriever\":\"aretriever\", " +
-        "\"input\":{ \"id\":\"vidioid\", \"file\":\"file.avi\", \"name\":\"crazy vid\", " +
-        " \"subtitles\": [\"subtitle1\", \"subtitle4\"]}}}";
+    String json = "{\"type\":\"FeatureExtractionJob\",\"priority\":3, \"name\":\"configjob\","
+        + "\"immediate_cleanup\":\"false\", \"config\":{\"retriever\":\"aretriever\", "
+        + "\"input\":{ \"id\":\"vidioid\", \"file\":\"file.avi\", \"name\":\"crazy vid\", "
+        + " \"subtitles\": [\"subtitle1\", \"subtitle4\"]}}}";
     FeatureExtractionJob jb = (FeatureExtractionJob) jf.buildJob(json);
     jb.setTools(mockTools);
     jb.execute();

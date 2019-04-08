@@ -25,7 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.vitrivr.cthulhu.jobs.Job;
 import org.vitrivr.cthulhu.jobs.JobAdapter;
-import org.vitrivr.cthulhu.rest.CthulhuREST;
+import org.vitrivr.cthulhu.rest.CthulhuRest;
 import org.vitrivr.cthulhu.scheduler.CoordinatorScheduler;
 import org.vitrivr.cthulhu.scheduler.CthulhuScheduler;
 import org.vitrivr.cthulhu.scheduler.SchedulerFactory;
@@ -33,12 +33,12 @@ import org.vitrivr.cthulhu.scheduler.SchedulerFactory;
 public class CthulhuRunner {
 
   private static RunnerType type = RunnerType.COORDINATOR;
-  private static CthulhuREST api;
+  private static CthulhuRest api;
   private static CthulhuScheduler ms;
   private static Logger LOGGER = LogManager.getLogger("r.m");
 
   // Returns first available non-loopback, active IP address
-  private static String getIPAddress() {
+  private static String getIpAddress() {
     try {
       Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
       while (interfaces.hasMoreElements()) {
@@ -75,7 +75,12 @@ public class CthulhuRunner {
     return Optional.empty();
   }
 
-  public static CommandLine populateProperties(String[] args, Properties prop) throws Exception {
+  /**
+   * Parses the command line and updates any properties that are set in the command line.
+   * @param args commands in from the command line.
+   * @param prop properties file to update
+   */
+  public static CommandLine populateProperties(String[] args, Properties prop) {
     CommandLineParser parser = new DefaultParser();
     Options options = new Options();
     options.addOption("h", "help", false, "Display help menu");
@@ -151,7 +156,7 @@ public class CthulhuRunner {
     if ((line != null && line.hasOption("a")) || prop.getProperty("address") == null) {
       LOGGER.info("Setting host address");
       String defaultIp =
-          prop.getProperty("address") != null ? prop.getProperty("address") : getIPAddress();
+          prop.getProperty("address") != null ? prop.getProperty("address") : getIpAddress();
       prop.setProperty("address", (line.hasOption("a") ? line.getOptionValue("a") : defaultIp));
     }
     if (line == null || line.hasOption("h")) {
@@ -164,6 +169,11 @@ public class CthulhuRunner {
     return line;
   }
 
+  /**
+   * Tries to restart the scheduler using the restoration file.
+   * @param prop properties to get the restoration file from
+   * @throws Exception when the file can not be read
+   */
   public static void restoreRun(Properties prop) throws Exception {
     Gson restoreGson = new GsonBuilder()
         .registerTypeAdapter(Job.class, new JobAdapter())
@@ -183,6 +193,9 @@ public class CthulhuRunner {
     ms = rs;
   }
 
+  /**
+   * Main method for running the system, spins up a CLI and API.
+   */
   public static void main(String[] args) {
     LOGGER.info("Loading properties");
     Properties prop = new Properties();
@@ -201,7 +214,7 @@ public class CthulhuRunner {
       }
 
       LOGGER.info("Starting up");
-      APICLIThread cli = new APICLIThread();
+      ApiCliThread cli = new ApiCliThread();
       cli.start();
       if (prop.getProperty("restoreFile") != null) {
         restoreRun(prop);
@@ -211,7 +224,7 @@ public class CthulhuRunner {
         ms = sf.createScheduler(type, prop); // Update later
       }
       ms.init();
-      api = new CthulhuREST();
+      api = new CthulhuRest();
       api.init(ms, prop);
     } catch (Exception e) {
       LOGGER.info("Exception has been thrown during startup.");
@@ -230,7 +243,7 @@ public class CthulhuRunner {
     WORKER
   }
 
-  private static final class APICLIThread extends Thread {
+  private static final class ApiCliThread extends Thread {
 
     @Override
     public void run() {

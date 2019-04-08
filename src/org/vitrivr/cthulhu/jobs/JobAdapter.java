@@ -17,7 +17,6 @@ public final class JobAdapter implements JsonSerializer<Job>, JsonDeserializer<J
 
   /**
    * Serializes the job. Normal Gson behavior.
-   * <p>
    */
   public JsonElement serialize(Job object, Type interfaceType, JsonSerializationContext context) {
     final JsonObject wrapper = new JsonObject();
@@ -30,6 +29,7 @@ public final class JobAdapter implements JsonSerializer<Job>, JsonDeserializer<J
    * type parameter of the JSON definition.
    * <p>
    * It REQUIRES a type parameter in the Job definition.
+   * </p>
    */
   public Job deserialize(JsonElement elem, Type interfaceType, JsonDeserializationContext context)
       throws JsonParseException {

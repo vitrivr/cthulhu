@@ -23,6 +23,9 @@ public class CineastJob extends Job {
   private IngestConfig config;
   private String workDir;
 
+  /**
+   * Base constructor for the job, can be used by Jackson.
+   */
   @JsonCreator
   public CineastJob(
       @JsonProperty("config") IngestConfig config,
@@ -38,7 +41,8 @@ public class CineastJob extends Job {
   }
 
   /**
-   * Saves the configuration to give to Cineast as a file
+   * Saves the configuration to give to Cineast as a file.
+   *
    * @param config the config to give to Cineast
    * @param outputPath where to save the file to
    * @param id the job id used to avoid save overwrites
@@ -72,9 +76,9 @@ public class CineastJob extends Job {
       return getStatusValue();
     }
 
-    String cineastDir = tools.getCineastLocation();
+    String cineastLocation = tools.getCineastLocation();
     String cineastConfig = tools.getCineastConfigLocation();
-    Status executionStatus = executeCineast(cineastDir, cineastConfig, getConfigPath(dir, id));
+    Status executionStatus = executeCineast(cineastLocation, cineastConfig, getConfigPath(dir, id));
 
     setStatus(executionStatus);
     if (!this.stdErr.isEmpty()) {
@@ -85,7 +89,8 @@ public class CineastJob extends Job {
   }
 
   /**
-   * If the work directory is not defined, it is set, then the work directory is returned
+   * If the work directory is not defined, it is set, then the work directory is returned.
+   *
    * @return the working directory to save files in
    */
   private String getOrSetWorkDir() {
@@ -97,28 +102,25 @@ public class CineastJob extends Job {
   }
 
   /**
-   * Runs the Cineast jar and returns the status of the process on completion
-   * @param cineastDir
-   * @param cineastConf
-   * @param configFile
-   * @return
+   * Runs the Cineast jar and returns the status of the process on completion.
+   *
+   * @param cineastLocation the location of the cineast jar
+   * @param cineastConf the location of the cineast configuration
+   * @param configFile the job to send to cineast
+   * @return the status of the execution
    */
-  private Status executeCineast(String cineastDir, String cineastConf, String configFile) {
+  private Status executeCineast(String cineastLocation, String cineastConf, String configFile) {
     tools.lg.info("{} - Preparing to execute cineast", name);
-    if (cineastDir == null || cineastDir.isEmpty()) {
+    if (cineastLocation == null || cineastLocation.isEmpty()) {
       return UNEXPECTED_ERROR;
     }
     String javaFlags = tools.getJavaFlags();
     String command = String
         .format("java %s -jar %s --job %s --config %s",
-                javaFlags, cineastDir, configFile, cineastConf);
+                javaFlags, cineastLocation, configFile, cineastConf);
     try {
       Process p = Runtime.getRuntime().exec(command);
-      InputStream is = p.getInputStream();
-      InputStream es = p.getErrorStream();
-      this.stdOut = IOUtils.toString(is, "UTF-8");
-      this.stdErr = IOUtils.toString(es, "UTF-8");
-      int retVal = p.waitFor();
+      int retVal = waitForProcess(p);
       if (retVal == 0) {
         return SUCCEEDED;
       }

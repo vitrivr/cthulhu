@@ -25,6 +25,10 @@ public class BashJob extends Job {
     this.priority = priority;
   }
 
+  /**
+   * Executes the bash command given.
+   * @return the status of the execution
+   */
   public int execute() {
     ProcessBuilder pb = new ProcessBuilder("sh");
     Process p;
@@ -35,12 +39,7 @@ public class BashJob extends Job {
       os.flush();
       os.close();
 
-      InputStream is = p.getInputStream();
-      InputStream es = p.getErrorStream();
-
-      this.stdOut = IOUtils.toString(is, "UTF-8");
-      this.stdErr = IOUtils.toString(es, "UTF-8");
-      int retVal = p.waitFor();
+      int retVal = waitForProcess(p);
       if (retVal == 0) {
         status = Job.Status.SUCCEEDED;
       }
@@ -55,9 +54,6 @@ public class BashJob extends Job {
 
   /**
    * Returns the action property of the job. The main action of it.
-   * <p>
-   *
-   * @return the action property of the job
    */
   public String getAction() {
     return action;

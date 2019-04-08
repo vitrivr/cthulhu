@@ -3,8 +3,6 @@ package org.vitrivr.cthulhu.worker;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import org.vitrivr.cthulhu.jobs.Job;
 
 public class Worker {
@@ -12,52 +10,63 @@ public class Worker {
   private String address;
   private int port;
   private int capacity; // Jobs that can be run simultaneously
-  private Hashtable<String, Job> jt; // Job table
+  private Hashtable<String, Job> jobTable;
 
+  /**
+   * Constructor for a worker that doesn't declare the capacity, so the default capacity of 1 is
+   * given.
+   *
+   * @param address an IPv4 address the worker is at, by default this is 127.0.0.1
+   * @param port the port the worker is listening on
+   */
   public Worker(String address, int port) {
-    this.address = address;
-    this.port = port;
-    this.capacity = 1; // Jobs that can be run simultaneously
-    jt = new Hashtable<>();
+    this(address, port, 1);
   }
 
+  /**
+   * Main constructor for a worker.
+   *
+   * @param address an IPv4 address the worker is at, by default this is 127.0.0.1
+   * @param port the port the worker is listening on
+   * @param capacity the number of jobs the worker can handle at once
+   */
   public Worker(String address, int port, int capacity) {
     this.address = address;
     this.port = port;
     this.capacity = capacity;
-    jt = new Hashtable<>();
+    jobTable = new Hashtable<>();
   }
 
   public List<Job> getJobs() {
-    return new ArrayList<>(jt.values());
+    return new ArrayList<>(jobTable.values());
   }
 
   public Job getJob(String jobName) {
-    return jt.get(jobName);
+    return jobTable.get(jobName);
   }
 
   public void addJob(Job job) {
-    jt.put(job.getName(), job);
+    jobTable.put(job.getName(), job);
   }
 
   public Job removeJob(String jobName) {
-    return jt.remove(jobName);
+    return jobTable.remove(jobName);
   }
 
   public boolean hasJob(String jobName) {
-    return jt.containsKey(jobName);
+    return jobTable.containsKey(jobName);
   }
 
   public Job deleteJob(String jobId) {
-    return jt.remove(jobId);
+    return jobTable.remove(jobId);
   }
 
   public int getCapacity() {
     return capacity;
   }
 
-  public int getJQSize() {
-    return jt.size();
+  public int getJobQueueSize() {
+    return jobTable.size();
   }
 
   public String getAddress() {
