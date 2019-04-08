@@ -162,7 +162,6 @@ public class CthulhuRest {
     });
     post("/data/:file", (req, res) -> {
       String fname = req.params(":file");
-      fname = fname.replace("../", "/");
       System.out.println("Receiving a file back: " + fname);
       File fout = new File(workspace, fname);
       if (fout.exists()) {
@@ -217,7 +216,7 @@ public class CthulhuRest {
       case "jpg":
       case "jpeg":
         return "image/" + fileType;
-      case "mp4":
+        case "mp4":
       case "3gpp":
         return "video/" + fileType;
       case "avi":
